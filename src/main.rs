@@ -117,6 +117,149 @@ fn day2p2() {
     println!("hpos:{} depth:{} aim:{} answer:{}", hpos, depth, aim, hpos*depth);
 }
 
+fn day3p1() {
+    println!("Day 3 Puzzle 1");
+
+    let mut count_0: [u32; 12] = [0; 12];
+    let mut count_1: [u32; 12] = [0; 12];
+
+    if let Ok(lines) = read_lines("data/day3_input.txt") {
+        for line in lines {
+            if let Ok(ip) = line {
+                //let cur:i32 = i32::from_str(&ip).unwrap();
+
+                for bit in 0..12 {
+                    //if ip.chars().nth(i).unwrap() 
+                    match ip.chars().nth(bit).unwrap() {
+                        '0' => count_0[bit] += 1,
+                        '1' => count_1[bit] += 1,
+                        _ => println!("bad input"),
+                    }
+                }
+            }
+        }
+        let mut gamma: [u32;12] = [0; 12];
+        let mut epsilon: [u32;12] = [0; 12];
+
+        for bit in 0..12 {
+            if count_0[bit] > count_1[bit] {
+                gamma[bit] = 0;
+                epsilon[bit] = 1;
+            }
+            else {
+                gamma[bit] = 1;
+                epsilon[bit] = 0;
+            }
+        }
+        println!("gamma:  {:?}", gamma);
+        println!("epsilon:{:?}", epsilon);
+        let mut gval:u32 = 0;
+        let mut eval:u32 = 0;
+
+        for bit in 0..12 {
+            gval = gval*2;
+            if gamma[bit] == 1 {
+                gval += 1;
+            }
+            eval = eval*2;
+            if epsilon[bit] == 1 {
+                eval += 1;
+            }
+        }
+        println!("gval:{} eval:{} answer:{}", gval, eval, gval*eval);
+    }
+}
+
+fn day3p2() {
+    println!("Day 3 Puzzle 2");
+
+    let mut count_0: [u32; 12] = [0; 12];
+    let mut count_1: [u32; 12] = [0; 12];
+
+    let mut vals = Vec::new();
+
+    if let Ok(lines) = read_lines("data/day3_ex.txt") {
+        for line in lines {
+            if let Ok(ip) = line {
+                //let cur:i32 = i32::from_str(&ip).unwrap();
+
+                //vals.push(i32::from_str(&ip).unwrap());
+
+                let mut val:u32 = 0;
+
+                for bit in 0..5 {
+                    val *= 2;
+                    //if ip.chars().nth(i).unwrap() 
+                    match ip.chars().nth(bit).unwrap() {
+                        '0' => count_0[bit] += 1,
+                        '1' => { count_1[bit] += 1; val += 1; },
+                        _ => println!("bad input"),
+                    }
+                }
+                vals.push(val);
+            }
+        }
+        let mut gamma: [u32;12] = [0; 12];
+        let mut epsilon: [u32;12] = [0; 12];
+        let mut gval:u32 = 0;
+        let mut eval:u32 = 0;
+
+        for bit in 0..5 {
+            if count_0[bit] > count_1[bit] {
+                gamma[bit] = 0;
+                epsilon[bit] = 1;
+                eval |= 1<<(4-bit);
+            }
+            else {
+                gamma[bit] = 1;
+                epsilon[bit] = 0;
+                gval |= 1 << (4-bit);
+            }
+        }
+        println!("gamma:  {:?}", gamma);
+        println!("epsilon:{:?}", epsilon);
+        println!("gval:{}", gval);
+        println!("eval:{}", eval);
+
+        println!("vals:{:?}", vals);
+        let mut gvals = vals.clone();
+        let mut evals = vals.clone();
+    
+
+        for bit in (0..5).rev() {
+            println!("bit {}", bit);
+            if gvals.len() > 1 {
+                let mut gvals_filt = Vec::new();
+
+                for val in &gvals {
+                    println!("  val {:02x} bit {:02x} out {:02x}", *val,(1<<bit),  (*val & (1<<bit)));
+                    if (*val & (1<<bit)) != 0 {
+                        println!("    adding {}", *val);
+                        gvals_filt.push(*val);
+                    }
+                }
+                gvals = gvals_filt.clone();
+            }
+            if evals.len() > 1 {
+                let mut evals_filt = Vec::new();
+
+                for val in &evals {
+                    if (*val & 1<<bit) == 0 {
+                        evals_filt.push(*val);
+                    }
+                }
+                evals = evals_filt.clone();
+            }
+
+            println!("gvals:{:?}", gvals);
+            println!("evals:{:?}", evals);
+        }
+    
+
+    }
+
+}
+
 fn main() {
     println!("Hello, world!");
     day1p1();
@@ -124,6 +267,9 @@ fn main() {
 
     day2p1();
     day2p2();
+
+    day3p1();
+    day3p2();
 }
 
 // The output is wrapped in a Result to allow matching on errors
