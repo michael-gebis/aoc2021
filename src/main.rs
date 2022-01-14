@@ -3,6 +3,9 @@ use std::io::{self, BufRead};
 use std::path::Path;
 use std::str::FromStr;
 
+// TODO: refactor into being test driven
+// TODO: since each day is mostly independant, split into day-by-day files
+
 fn day1p1() {
     println!("Day 1 Puzzle 1");
 
@@ -142,7 +145,7 @@ fn get_common_in_pos(pos: usize, d: &Vec<String>) -> u32 {
     1
 }
 
-fn get_counts_in_pos(pos: usize, d: &Vec<String>) -> (u32,u32) {
+fn get_counts_in_pos(pos: usize, d: &Vec<String>) -> (u32, u32) {
     // TODO: maybe I should make this more generic but whatev
     let mut c0 = 0;
     let mut c1 = 0;
@@ -154,7 +157,7 @@ fn get_counts_in_pos(pos: usize, d: &Vec<String>) -> (u32,u32) {
             _ => panic!("bad input"),
         };
     });
-    (c0,c1)
+    (c0, c1)
 }
 
 #[cfg(test)]
@@ -163,10 +166,12 @@ mod tests {
 
     #[test]
     fn test_get_common_in_pos() {
-        let v = vec!("000".to_string(),
-                    "001".to_string(),
-                    "011".to_string(),
-                    "101".to_string());
+        let v = vec![
+            "000".to_string(),
+            "001".to_string(),
+            "011".to_string(),
+            "101".to_string(),
+        ];
 
         let common = get_common_in_pos(0, &v);
         assert_eq!(0, common);
@@ -183,13 +188,12 @@ fn day3_p1a() -> i32 {
     println!("Day 3 Puzzle 1a");
 
     if let Ok(lines) = read_lines("data/day3_input.txt") {
-
         let mut bitcount = 0;
         let mut d = Vec::new();
 
         // Grab all lines, put in a vector; also extract bitcount.
         // Bet you a $million there's a better way to do this
-        for line in lines  {
+        for line in lines {
             if let Ok(bits) = line {
                 if bitcount == 0 {
                     bitcount = bits.len();
@@ -201,31 +205,35 @@ fn day3_p1a() -> i32 {
 
         let mut gamma = 0;
         let mut epsilon = 0;
-        
         for bit in 0..bitcount {
             gamma *= 2;
             epsilon *= 2;
             match get_common_in_pos(bit, &d) {
                 0 => gamma += 1,
                 1 => epsilon += 1,
-                _ => panic!("bad input")
+                _ => panic!("bad input"),
             }
         }
-        println!("gamma:{} epsilon:{} answer:{}", gamma, epsilon, gamma*epsilon);
-        return gamma*epsilon;
+        println!(
+            "gamma:{} epsilon:{} answer:{}",
+            gamma,
+            epsilon,
+            gamma * epsilon
+        );
+        return gamma * epsilon;
     }
 
     0
 }
 
-fn bin2u32(x:&String) -> u32 {
-    let mut v:u32 = 0;
+fn bin2u32(x: &String) -> u32 {
+    let mut v: u32 = 0;
     for i in 0..x.len() {
         v *= 2;
         match x.chars().nth(i).unwrap() {
             '0' => continue,
             '1' => v += 1,
-            _ => panic!("bad input")
+            _ => panic!("bad input"),
         }
     }
     v
@@ -287,13 +295,12 @@ fn day3_p2a() {
     println!("Day 3 Puzzle 2a");
 
     if let Ok(lines) = read_lines("data/day3_input.txt") {
-
         let mut bitcount = 0;
         let mut d = Vec::new();
 
         // Grab all lines, put in a vector; also extract bitcount.
         // Bet you a $million there's a better way to do this
-        for line in lines  {
+        for line in lines {
             if let Ok(bits) = line {
                 if bitcount == 0 {
                     bitcount = bits.len();
@@ -306,10 +313,10 @@ fn day3_p2a() {
 
         let mut ogen = d.clone();
         let mut bit = 0;
-        while ogen.len() > 1  && bit < bitcount {
+        while ogen.len() > 1 && bit < bitcount {
             let mut ogennew = Vec::new();
-            let (c0,c1) = get_counts_in_pos(bit, &ogen);
-            let mostcommon = if c0 > c1 { 0 } else { 1 } ;
+            let (c0, c1) = get_counts_in_pos(bit, &ogen);
+            let mostcommon = if c0 > c1 { 0 } else { 1 };
 
             println!("Bit:{} c0:{} c1:{} mostcommon:{}", bit, c0, c1, mostcommon);
             for entry in ogen {
@@ -322,15 +329,17 @@ fn day3_p2a() {
             bit += 1;
         }
         println!("ogen={:?} val={}", ogen, bin2u32(&ogen[0]));
-        
         let mut co2 = d.clone();
         let mut bit = 0;
-        while co2.len() > 1  && bit < bitcount {
+        while co2.len() > 1 && bit < bitcount {
             let mut co2new = Vec::new();
-            let (c0,c1) = get_counts_in_pos(bit, &co2);
-            let leastcommon = if c0 <= c1 { 0 } else { 1 } ;
+            let (c0, c1) = get_counts_in_pos(bit, &co2);
+            let leastcommon = if c0 <= c1 { 0 } else { 1 };
 
-            println!("Bit:{} c0:{} c1:{} leastcommon:{}", bit, c0, c1, leastcommon);
+            println!(
+                "Bit:{} c0:{} c1:{} leastcommon:{}",
+                bit, c0, c1, leastcommon
+            );
             for entry in co2 {
                 if entry.chars().nth(bit).unwrap().to_digit(10).unwrap() == leastcommon {
                     co2new.push(entry);
@@ -340,7 +349,7 @@ fn day3_p2a() {
             co2 = co2new.clone();
             bit += 1;
         }
-        println!("co2={:?} val={}", ogen, bin2u32(&co2[0])); 
+        println!("co2={:?} val={}", ogen, bin2u32(&co2[0]));
 
         println!("ogen*co2={}", bin2u32(&ogen[0]) * bin2u32(&co2[0]));
     }
@@ -437,6 +446,17 @@ fn day3p2() {
             println!("evals:{:?}", evals);
         }
     }
+}
+
+fn day4_p1() {
+    // TODO: create board object, a vec of vecs containing i32
+    // TODO: method check_win()
+    // TODO: method mark(drawn_number)
+    // TODO: method calculate_score()
+
+    // Read file, which creates:
+    // Vec of draws
+    // Vec of Boards
 }
 
 fn main() {
