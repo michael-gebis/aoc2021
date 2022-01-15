@@ -1,65 +1,16 @@
-use std::fs::File;
-use std::io::{self, BufRead};
-use std::path::Path;
+// use std::fs::File;
+// use std::io::{self, BufRead};
+// use std::path::Path;
 use std::str::FromStr;
+mod day01;
+mod day04;
+mod util;
+use util::*;
+//use day01::*;
 
 // TODO: refactor into being test driven
 // TODO: since each day is mostly independant, split into day-by-day files
 
-fn day1p1() {
-    println!("Day 1 Puzzle 1");
-
-    let mut prev: i32 = 99999;
-    let mut count: i32 = 0;
-
-    if let Ok(lines) = read_lines("data/day1_input.txt") {
-        for line in lines {
-            if let Ok(ip) = line {
-                let cur: i32 = i32::from_str(&ip).unwrap();
-                if cur > prev {
-                    count += 1;
-                }
-                prev = cur;
-                // println!("{}", cur);
-            }
-        }
-    }
-    println!("count={}", count);
-}
-
-fn day1p2() {
-    println!("Day 1 Puzzle 2");
-
-    let mut p1: i32 = -1;
-    let mut p0: i32 = -1;
-
-    let mut prevsum: i32 = 9999999;
-    let mut count: i32 = 0;
-    if let Ok(lines) = read_lines("data/day1_input.txt") {
-        for line in lines {
-            if let Ok(ip) = line {
-                let cur: i32 = i32::from_str(&ip).unwrap();
-
-                if p1 == -1 {
-                    p1 = cur;
-                } else if p0 == -1 {
-                    p0 = cur;
-                } else {
-                    let sum: i32 = cur + p0 + p1;
-                    if sum > prevsum {
-                        count += 1;
-                    }
-                    p1 = p0;
-                    p0 = cur;
-                    prevsum = sum;
-                }
-
-                // println!("p1:{} p0:{} cur:{} prevsum:{}", p1, p0, cur, prevsum);
-            }
-        }
-        println!("count={}", count);
-    }
-}
 
 fn day2p1() {
     println!("Day 2 Puzzle 1");
@@ -448,35 +399,17 @@ fn day3p2() {
     }
 }
 
-fn day4_p1() {
-    // TODO: create board object, a vec of vecs containing i32
-    // TODO: method check_win()
-    // TODO: method mark(drawn_number)
-    // TODO: method calculate_score()
-
-    // Read file, which creates:
-    // Vec of draws
-    // Vec of Boards
-}
-
 fn main() {
     println!("Hello, world!");
-    //day1p1();
-    //day1p2();
+    day01::day1p1();
+    day01::day1p2();
 
     //day2p1();
     //day2p2();
 
     day3_p2a();
     //day3p2();
+
+    day04::day04_p1();
 }
 
-// The output is wrapped in a Result to allow matching on errors
-// Returns an Iterator to the Reader of the lines of the file.
-fn read_lines<P>(filename: P) -> io::Result<io::Lines<io::BufReader<File>>>
-where
-    P: AsRef<Path>,
-{
-    let file = File::open(filename)?;
-    Ok(io::BufReader::new(file).lines())
-}
