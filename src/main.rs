@@ -4,6 +4,8 @@
 use std::str::FromStr;
 mod day01;
 mod day04;
+mod day05;
+mod day06;
 mod util;
 use util::*;
 //use day01::*;
@@ -411,5 +413,10 @@ fn main() {
     //day3p2();
 
     day04::day04_p1();
+
+    day05::day05_p1();
+
+    day06::day06_p1();
+    day06::day06_p2();
 }
 
