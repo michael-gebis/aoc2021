@@ -1,6 +1,8 @@
 extern crate termion;
 use std::fmt;
 use termion::{color, style};
+use std::fs::File;
+use std::io::{self, prelude::*, BufReader};
 
 // TODO: create board object, a vec of vecs containing i32
 // TODO: method check_win()
@@ -67,6 +69,11 @@ impl Board {
         self.data[i][j].state = CellState::Picked;
     }
     */
+
+    fn set_cell(self:&mut Board, i:usize, j:usize, val:u32) {
+        self.data[i][j].val = val;
+        self.data[i][j].state = CellState::Unpicked;
+    }
 
     fn pick(self:&mut Board, v:u32) {
         for i in 0..GRIDSIZE {
@@ -135,6 +142,58 @@ impl fmt::Display for Board {
     }
 }
 
+fn read_board_from_file(filename: &String) -> (Vec<u32>, Vec<Board>) {
+
+    println!("Reading from file {}", filename);
+
+    let mut picklist: Vec<u32> = Vec::new();
+    let mut boards: Vec<Board> = Vec::new();
+
+    let file = File::open(filename).expect("Couldn't open file");
+    let mut reader = BufReader::new(file);
+
+    let mut buffer = String::new();
+    let line = reader.read_line(&mut buffer).expect("Couldn't get line");
+
+    // println!("line:'{}' buffer:'{}'", line, buffer.trim());
+
+    picklist = buffer.trim().split(",").map(|x| x.parse().unwrap()).collect();
+
+    println!("picklist:{:?}", picklist);
+
+    // Skip a line
+    //buffer.clear();
+    //let _ = reader.read_line(&mut buffer);
+
+    // Reads a blank line...
+    buffer.clear();
+    while let Ok(line) = reader.read_line(&mut buffer) {
+        if line == 0 {
+            break;
+        }
+        println!("Reading board!: buffer='{}'", buffer);
+
+        let mut b = Board::new();
+
+        for i in 0..GRIDSIZE {
+
+            buffer.clear();
+            let myline = reader.read_line(&mut buffer).unwrap();
+            println!("Reading board!!!: buffer='{}'", buffer);            
+            let vals: Vec<u32> = buffer.split_whitespace().map(|x| x.parse().unwrap()).collect();
+            for (j, v) in vals.iter().enumerate() {
+                b.set_cell(i,j,*v);
+            }
+//            buffer.clear();
+        }
+        boards.push(b);
+        buffer.clear();
+    }
+    (picklist, boards)
+}
+
+
+
 pub fn day04_p1() {
     let mut b = Board::new();
 
@@ -166,6 +225,25 @@ pub fn day04_p1() {
     b.check_win();
     println!("Score={}",b.sum_of_unpicked());
     
+    let (picks, mut boards) = read_board_from_file(&String::from("src/day04/day4_input.txt"));
+
+    'pickloop: for pick in picks.iter() {
+        println!("Picking ball {} from {} boards", pick, boards.len());
+        for (i, b) in boards.iter_mut().enumerate() {
+            b.pick(*pick);
+            if b.check_win() {
+                println!("Board {} wins!!!, sum={}, score={}", b, b.sum_of_unpicked(), pick*b.sum_of_unpicked());
+                //panic!("winner");
+                //break;
+            }
+        }
+        while let Some(pos) = boards.iter().position(|x| x.check_win()) {
+            println!("Removing winning board");
+            boards.remove(pos);
+        }
+        //boards.remove(boards.iter().position(|x| x.check_win()).expect("hey"));
+
+    }
     // TODO: create board object, a vec of vecs containing i32
     // TODO: method calculate_score()
 
