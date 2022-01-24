@@ -1,4 +1,3 @@
-use std::str::FromStr;
 use crate::*;
 use regex::Regex;
 use std::cmp::Ord;
@@ -28,14 +27,14 @@ pub fn day05_p1() {
                 let caps = re.captures(&ip).unwrap();
                 println!("caps:{:?}", caps);
                 let (startx, starty, endx, endy) : (usize,usize,usize,usize) = (
-                    caps.get(1).unwrap().as_str().parse().unwrap(),
-                    caps.get(2).unwrap().as_str().parse().unwrap(),
-                    caps.get(3).unwrap().as_str().parse().unwrap(),
-                    caps.get(4).unwrap().as_str().parse().unwrap());
+                    caps[1].parse().unwrap(),
+                    caps[2].parse().unwrap(),
+                    caps[3].parse().unwrap(),
+                    caps[4].parse().unwrap());
                 println!("startx:{} starty:{} endx:{} endy:{}", startx, starty, endx, endy);
 
-                let (miny,maxy):(usize, usize) = (starty.min(endy), starty.max(endy));
-                let (minx,maxx):(usize, usize) = (startx.min(endx), startx.max(endx));
+                let (miny,maxy) = (starty.min(endy), starty.max(endy));
+                let (minx,maxx) = (startx.min(endx), startx.max(endx));
 
                 if startx == endx {
                     for j in miny..maxy+1 {
