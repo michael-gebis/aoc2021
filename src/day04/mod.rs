@@ -146,7 +146,7 @@ fn read_board_from_file(filename: &String) -> (Vec<u32>, Vec<Board>) {
 
     println!("Reading from file {}", filename);
 
-    let mut picklist: Vec<u32> = Vec::new();
+    let picklist: Vec<u32>;//= Vec::new();
     let mut boards: Vec<Board> = Vec::new();
 
     let file = File::open(filename).expect("Couldn't open file");
@@ -244,10 +244,4 @@ pub fn day04_p1() {
         //boards.remove(boards.iter().position(|x| x.check_win()).expect("hey"));
 
     }
-    // TODO: create board object, a vec of vecs containing i32
-    // TODO: method calculate_score()
-
-    // Read file, which creates:
-    // Vec of draws
-    // Vec of Boards
 }
