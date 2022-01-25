@@ -6,13 +6,13 @@ mod day01;
 mod day04;
 mod day05;
 mod day06;
+mod day07;
 mod util;
 use util::*;
-//use day01::*;
+
 
 // TODO: refactor into being test driven
 // TODO: since each day is mostly independant, split into day-by-day files
-
 
 fn day2p1() {
     println!("Day 2 Puzzle 1");
@@ -416,7 +416,9 @@ fn main() {
 
     day05::day05_p1();
 
-    day06::day06_p1();
-    day06::day06_p2();
+    //day06::day06_p1();
+    //day06::day06_p2();
+
+    day07::day07_p1();
 }
 
