@@ -404,23 +404,23 @@ fn day3p2() {
 
 fn main() {
     println!("Hello, world!");
-    day01::day1p1();
-    day01::day1p2();
+    //day01::day1p1();
+    //day01::day1p2();
 
     //day2p1();
     //day2p2();
 
-    day3_p2a();
+    //day3_p2a();
     //day3p2();
 
-    day04::day04_p1();
+    //day04::day04_p1();
 
-    day05::day05_p1();
+    //day05::day05_p1();
 
     //day06::day06_p1();
     //day06::day06_p2();
 
-    day07::day07_p1();
+    //day07::day07_p1();
 
     day08::day08_p1();
 }
