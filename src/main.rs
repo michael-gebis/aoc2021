@@ -424,9 +424,9 @@ fn main() {
 
     //day07::day07_p1();
 
-    day08::day08_p1();
+    //day08::day08_p1();
 
-    day09::day09_p1();
+    //day09::day09_p1();
 
     day10::day10_p1();
 }
