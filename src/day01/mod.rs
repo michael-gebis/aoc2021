@@ -2,7 +2,7 @@ use crate::*;
 use std::str::FromStr;
 
 #[allow(dead_code)]
-pub fn day1p1() {
+pub fn day01_p1() {
     println!("Day 1 Puzzle 1");
 
     let mut prev: i32 = 99999;
@@ -24,7 +24,7 @@ pub fn day1p1() {
 }
 
 #[allow(dead_code)]
-pub fn day1p2() {
+pub fn day01_p2() {
     println!("Day 1 Puzzle 2");
 
     let mut p1: i32 = -1;
