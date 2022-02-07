@@ -1,6 +1,8 @@
 use crate::*;
 use std::str::FromStr;
 
+const FILENAME: &str = "src/day01/day01_input.txt";
+
 #[allow(dead_code)]
 pub fn day01_p1() {
     println!("Day 1 Puzzle 1");
@@ -8,7 +10,7 @@ pub fn day01_p1() {
     let mut prev: i32 = 99999;
     let mut count: i32 = 0;
 
-    if let Ok(lines) = util::read_lines("data/day1_input.txt") {
+    if let Ok(lines) = util::read_lines(FILENAME) {
         for line in lines {
             if let Ok(ip) = line {
                 let cur: i32 = i32::from_str(&ip).unwrap();
@@ -19,9 +21,12 @@ pub fn day01_p1() {
                 // println!("{}", cur);
             }
         }
+    } else {
+        panic!("couldn't read file {}", FILENAME);
     }
     println!("count={}", count);
 }
+
 
 #[allow(dead_code)]
 pub fn day01_p2() {
@@ -32,7 +37,7 @@ pub fn day01_p2() {
 
     let mut prevsum: i32 = 9999999;
     let mut count: i32 = 0;
-    if let Ok(lines) = util::read_lines("data/day1_input.txt") {
+    if let Ok(lines) = util::read_lines(FILENAME) {
         for line in lines {
             if let Ok(ip) = line {
                 let cur: i32 = i32::from_str(&ip).unwrap();
@@ -55,5 +60,7 @@ pub fn day01_p2() {
             }
         }
         println!("count={}", count);
+    } else {
+        panic!("couldn't read file {}", FILENAME)
     }
 }
