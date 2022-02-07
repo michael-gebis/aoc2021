@@ -1,6 +1,3 @@
-// use std::fs::File;
-// use std::io::{self, BufRead};
-// use std::path::Path;
 use std::str::FromStr;
 mod day01;
 mod day04;
@@ -17,6 +14,7 @@ use util::*;
 // TODO: refactor into being test driven
 // TODO: since each day is mostly independant, split into day-by-day files
 
+#[allow(dead_code)]
 fn day2p1() {
     println!("Day 2 Puzzle 1");
 
@@ -43,6 +41,7 @@ fn day2p1() {
     println!("hpos:{} depth:{} answer:{}", hpos, depth, hpos * depth);
 }
 
+#[allow(dead_code)]
 fn day2p2() {
     println!("Day 2 Puzzle 2");
 
@@ -140,6 +139,7 @@ mod tests {
     }
 }
 
+#[allow(dead_code)]
 fn day3_p1a() -> i32 {
     println!("Day 3 Puzzle 1a");
 
@@ -195,6 +195,7 @@ fn bin2u32(x: &String) -> u32 {
     v
 }
 
+#[allow(dead_code)]
 fn day3p1() {
     println!("Day 3 Puzzle 1");
 
@@ -247,6 +248,7 @@ fn day3p1() {
     }
 }
 
+#[allow(dead_code)]
 fn day3_p2a() {
     println!("Day 3 Puzzle 2a");
 
@@ -311,6 +313,7 @@ fn day3_p2a() {
     }
 }
 
+#[allow(dead_code)]
 fn day3p2() {
     println!("Day 3 Puzzle 2");
 

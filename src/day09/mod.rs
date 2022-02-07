@@ -83,7 +83,7 @@ pub fn basinsearch(board: &Vec<Vec<i32>>, boardsize: (i32, i32), pos: (i32, i32)
     dbg!(count);
     count
 }
-
+#[allow(dead_code)]
 pub fn day09_p1() {
     println!("Day 9 Puzzle 1");
 
@@ -124,7 +124,7 @@ pub fn day09_p1() {
     for row in 0..linecount {
         for col in 0..rowsize {
             let mut gt = 0;
-            let mut lt = 0;
+            let mut _lt = 0;
             let mut eq = 0;
             let val = board[row as usize][col as usize];
             println!("Val at {},{}: {}", col, row, val);
@@ -132,7 +132,7 @@ pub fn day09_p1() {
                 let v2 = board[y as usize][x as usize];
                 println!(" compare to neighbor at {},{}: {}", x, y, v2);
                 if val < v2 {
-                    lt += 1;
+                    _lt += 1;
                 } else if val > v2 {
                     gt += 1;
                 } else {

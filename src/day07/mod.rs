@@ -1,6 +1,6 @@
-use std::str::FromStr;
 use crate::*;
 
+#[allow(dead_code)]
 pub fn calculate_move_costa(v: &std::vec::Vec<usize>, m:usize) -> usize {
     let mut cost = 0;
 
@@ -11,6 +11,7 @@ pub fn calculate_move_costa(v: &std::vec::Vec<usize>, m:usize) -> usize {
     cost
 }
 
+#[allow(dead_code)]
 pub fn calculate_move_costb(v: &std::vec::Vec<usize>, m:usize) -> usize {
     let mut cost = 0;
 
@@ -22,7 +23,7 @@ pub fn calculate_move_costb(v: &std::vec::Vec<usize>, m:usize) -> usize {
     cost
 }
 
-
+#[allow(dead_code)]
 pub fn day07_p1() {
     println!("day07_p1!");
 

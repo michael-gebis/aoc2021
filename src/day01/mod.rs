@@ -1,6 +1,7 @@
-use std::str::FromStr;
 use crate::*;
+use std::str::FromStr;
 
+#[allow(dead_code)]
 pub fn day1p1() {
     println!("Day 1 Puzzle 1");
 
@@ -21,6 +22,8 @@ pub fn day1p1() {
     }
     println!("count={}", count);
 }
+
+#[allow(dead_code)]
 pub fn day1p2() {
     println!("Day 1 Puzzle 2");
 

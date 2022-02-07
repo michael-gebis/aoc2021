@@ -18,6 +18,7 @@ pub fn str_is_subset(big: &String, small:&String) -> bool {
     true
 }
 
+#[allow(dead_code)]
 pub fn day08_p1() {
     println!("day08_p1!");
 

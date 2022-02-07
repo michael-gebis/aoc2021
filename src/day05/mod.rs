@@ -2,7 +2,7 @@ use crate::*;
 use regex::Regex;
 use std::cmp::Ord;
 
-const GRIDSIZE:usize = 1000;
+const GRIDSIZE: usize = 1000;
 
 #[allow(dead_code)]
 pub fn drawgrid(arr: &[[usize; GRIDSIZE]; GRIDSIZE]) {
@@ -14,6 +14,7 @@ pub fn drawgrid(arr: &[[usize; GRIDSIZE]; GRIDSIZE]) {
     }
 }
 
+#[allow(dead_code)]
 pub fn day05_p1() {
     println!("day05_p1!");
     let re = Regex::new(r"^(\d+),(\d+)\s*->\s*(\d+),(\d+)$").unwrap();
@@ -26,36 +27,40 @@ pub fn day05_p1() {
                 println!("Parsing '{}'", ip);
                 let caps = re.captures(&ip).unwrap();
                 println!("caps:{:?}", caps);
-                let (startx, starty, endx, endy) : (usize,usize,usize,usize) = (
+                let (startx, starty, endx, endy): (usize, usize, usize, usize) = (
                     caps[1].parse().unwrap(),
                     caps[2].parse().unwrap(),
                     caps[3].parse().unwrap(),
-                    caps[4].parse().unwrap());
-                println!("startx:{} starty:{} endx:{} endy:{}", startx, starty, endx, endy);
+                    caps[4].parse().unwrap(),
+                );
+                println!(
+                    "startx:{} starty:{} endx:{} endy:{}",
+                    startx, starty, endx, endy
+                );
 
-                let (miny,maxy) = (starty.min(endy), starty.max(endy));
-                let (minx,maxx) = (startx.min(endx), startx.max(endx));
+                let (miny, maxy) = (starty.min(endy), starty.max(endy));
+                let (minx, maxx) = (startx.min(endx), startx.max(endx));
 
                 if startx == endx {
-                    for j in miny..maxy+1 {
+                    for j in miny..maxy + 1 {
                         arr[startx][j] += 1
                     }
                 } else if starty == endy {
-                    for i in minx..maxx+1 {
+                    for i in minx..maxx + 1 {
                         arr[i][starty] += 1
                     }
                 } else {
                     if (endx > startx && endy > starty) || (endx < startx && endy < starty) {
                         println!("diagonal A");
                         let diff = maxx - minx;
-                        for i in 0..(diff+1) {
-                            arr[minx+i][miny+i] += 1
+                        for i in 0..(diff + 1) {
+                            arr[minx + i][miny + i] += 1
                         }
                     } else {
                         println!("diagonal B");
                         let diff = maxx - minx;
-                        for i in 0..(diff+1) {
-                            arr[minx+i][maxy-i] += 1
+                        for i in 0..(diff + 1) {
+                            arr[minx + i][maxy - i] += 1
                         }
                     }
                 }

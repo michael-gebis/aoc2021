@@ -1,20 +1,10 @@
 extern crate termion;
 use std::fmt;
-use termion::{color, style};
 use std::fs::File;
-use std::io::{self, prelude::*, BufReader};
-
-// TODO: create board object, a vec of vecs containing i32
-// TODO: method check_win()
-// TODO: method mark(drawn_number)
-// TODO: method calculate_score()
-
-// Read file, which creates:
-// Vec of draws
-// Vec of Boards
+use std::io::{prelude::*, BufReader};
+use termion::{color, style};
 
 const GRIDSIZE: usize = 5;
-
 
 #[derive(Debug)]
 enum CellState {
@@ -29,15 +19,20 @@ struct Cell {
 }
 
 impl Cell {
-    fn new(v:u32) -> Cell {
-        Cell { val:v, state:CellState::Unpicked, }
+    fn new(v: u32) -> Cell {
+        Cell {
+            val: v,
+            state: CellState::Unpicked,
+        }
     }
 }
 
 impl fmt::Display for Cell {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match self.state {
-            CellState::Picked => write!(f, "{}{:3}{}", color::Fg(color::Red), self.val, style::Reset),
+            CellState::Picked => {
+                write!(f, "{}{:3}{}", color::Fg(color::Red), self.val, style::Reset)
+            }
             _ => write!(f, "{:3}", self.val),
         }
     }
@@ -47,9 +42,9 @@ struct Board {
     data: Vec<Vec<Cell>>,
 }
 
-impl Board {    
+impl Board {
     fn new() -> Board {
-//        data : Vec::new();
+        //        data : Vec::new();
         let mut v = Vec::with_capacity(GRIDSIZE);
         println!("New");
         let mut c = 0;
@@ -61,7 +56,7 @@ impl Board {
             }
             v.push(t);
         }
-        Board{ data: v }
+        Board { data: v }
     }
 
     /*
@@ -70,12 +65,12 @@ impl Board {
     }
     */
 
-    fn set_cell(self:&mut Board, i:usize, j:usize, val:u32) {
+    fn set_cell(self: &mut Board, i: usize, j: usize, val: u32) {
         self.data[i][j].val = val;
         self.data[i][j].state = CellState::Unpicked;
     }
 
-    fn pick(self:&mut Board, v:u32) {
+    fn pick(self: &mut Board, v: u32) {
         for i in 0..GRIDSIZE {
             for j in 0..GRIDSIZE {
                 if self.data[i][j].val == v {
@@ -85,7 +80,7 @@ impl Board {
         }
     }
 
-    fn check_win(self:&Board) -> bool {
+    fn check_win(self: &Board) -> bool {
         // Check rows
         'rowloop: for i in 0..GRIDSIZE {
             for j in 0..GRIDSIZE {
@@ -95,7 +90,6 @@ impl Board {
                     _ => (),
                 }
                 //println!("pos i,j: {},{}", i,j);
-
             }
             //println!("Win in row {}", i);
             return true;
@@ -109,8 +103,7 @@ impl Board {
                 };
             }
             println!("Win in col {}", j);
-            return true;                
-
+            return true;
         }
         println!("Loser");
         false
@@ -136,28 +129,31 @@ impl fmt::Display for Board {
             for j in 0..GRIDSIZE {
                 write!(f, "{} ", self.data[i][j])?;
             }
-            write!(f,"\n")?;
+            write!(f, "\n")?;
         }
         fmt::Result::Ok(())
     }
 }
 
 fn read_board_from_file(filename: &String) -> (Vec<u32>, Vec<Board>) {
-
     println!("Reading from file {}", filename);
 
-    let picklist: Vec<u32>;//= Vec::new();
+    let picklist: Vec<u32>; //= Vec::new();
     let mut boards: Vec<Board> = Vec::new();
 
     let file = File::open(filename).expect("Couldn't open file");
     let mut reader = BufReader::new(file);
 
     let mut buffer = String::new();
-    let line = reader.read_line(&mut buffer).expect("Couldn't get line");
+    let _line = reader.read_line(&mut buffer).expect("Couldn't get line");
 
     // println!("line:'{}' buffer:'{}'", line, buffer.trim());
 
-    picklist = buffer.trim().split(",").map(|x| x.parse().unwrap()).collect();
+    picklist = buffer
+        .trim()
+        .split(",")
+        .map(|x| x.parse().unwrap())
+        .collect();
 
     println!("picklist:{:?}", picklist);
 
@@ -176,15 +172,17 @@ fn read_board_from_file(filename: &String) -> (Vec<u32>, Vec<Board>) {
         let mut b = Board::new();
 
         for i in 0..GRIDSIZE {
-
             buffer.clear();
-            let myline = reader.read_line(&mut buffer).unwrap();
-            println!("Reading board!!!: buffer='{}'", buffer);            
-            let vals: Vec<u32> = buffer.split_whitespace().map(|x| x.parse().unwrap()).collect();
+            let _myline = reader.read_line(&mut buffer).unwrap();
+            println!("Reading board!!!: buffer='{}'", buffer);
+            let vals: Vec<u32> = buffer
+                .split_whitespace()
+                .map(|x| x.parse().unwrap())
+                .collect();
             for (j, v) in vals.iter().enumerate() {
-                b.set_cell(i,j,*v);
+                b.set_cell(i, j, *v);
             }
-//            buffer.clear();
+            //            buffer.clear();
         }
         boards.push(b);
         buffer.clear();
@@ -192,47 +190,48 @@ fn read_board_from_file(filename: &String) -> (Vec<u32>, Vec<Board>) {
     (picklist, boards)
 }
 
-
-
+#[allow(dead_code)]
 pub fn day04_p1() {
     let mut b = Board::new();
 
-    println!("{}",b);
+    println!("{}", b);
     b.pick(5);
     b.pick(6);
     b.pick(7);
     b.pick(8);
-    println!("{}",b);
+    println!("{}", b);
     b.check_win();
-
 
     b.pick(9);
-    println!("{}",b);
+    println!("{}", b);
     b.check_win();
-    println!("Score={}",b.sum_of_unpicked());
-
+    println!("Score={}", b.sum_of_unpicked());
 
     let mut b = Board::new();
     b.pick(2);
     b.pick(7);
     b.pick(12);
     b.pick(17);
-    println!("{}",b);
+    println!("{}", b);
     b.check_win();
 
     b.pick(22);
-    println!("{}",b);
+    println!("{}", b);
     b.check_win();
-    println!("Score={}",b.sum_of_unpicked());
-    
+    println!("Score={}", b.sum_of_unpicked());
     let (picks, mut boards) = read_board_from_file(&String::from("src/day04/day4_input.txt"));
 
-    'pickloop: for pick in picks.iter() {
+    for pick in picks.iter() {
         println!("Picking ball {} from {} boards", pick, boards.len());
-        for (i, b) in boards.iter_mut().enumerate() {
+        for (_, b) in boards.iter_mut().enumerate() {
             b.pick(*pick);
             if b.check_win() {
-                println!("Board {} wins!!!, sum={}, score={}", b, b.sum_of_unpicked(), pick*b.sum_of_unpicked());
+                println!(
+                    "Board {} wins!!!, sum={}, score={}",
+                    b,
+                    b.sum_of_unpicked(),
+                    pick * b.sum_of_unpicked()
+                );
                 //panic!("winner");
                 //break;
             }
@@ -242,6 +241,5 @@ pub fn day04_p1() {
             boards.remove(pos);
         }
         //boards.remove(boards.iter().position(|x| x.check_win()).expect("hey"));
-
     }
 }
