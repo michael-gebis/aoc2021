@@ -22,7 +22,7 @@ You can model the energy levels and flashes of light in steps. During a single s
 
 - First, the energy level of each octopus increases by 1.
 - Then, any octopus with an energy level greater than 9 flashes. This increases the energy level of all adjacent octopuses by 1, including octopuses that are diagonally adjacent. If this causes an octopus to have an energy level greater than 9, it also flashes. This process continues as long as new octopuses keep having their energy level increased beyond 9. (An octopus can only flash at most once per step.)
--Finally, any octopus that flashed during this step has its energy level set to 0, as it used all of its energy to flash.
+- Finally, any octopus that flashed during this step has its energy level set to 0, as it used all of its energy to flash.
 
 Adjacent flashes can cause an octopus to flash on a step even if it begins that step with very little energy. Consider the middle octopus with 1 energy in this situation:
 
