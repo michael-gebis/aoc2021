@@ -9,6 +9,7 @@ mod day08;
 mod day09;
 mod day10;
 mod day11;
+mod day12;
 mod util;
 use util::*;
 
@@ -40,6 +41,8 @@ fn main() {
 
     //day10::day10_p1();
 
-    day11::day11_p1();
+    //day11::day11_p1();
+
+    day12::day12_p1();
 }
 
