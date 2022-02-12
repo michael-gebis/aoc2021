@@ -42,6 +42,7 @@ pub fn path_is_legal(
     true
 }
 
+#[allow(dead_code)]
 pub fn day12_p1() {
     println!("Day 12 Puzzle 1");
 

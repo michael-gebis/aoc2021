@@ -2,6 +2,7 @@ use crate::*;
 
 const FILENAME: &str = "src/day10/day10_input.txt";
 //const FILENAME: &str = "src/day10/day10_example.txt";
+#[allow(dead_code)]
 pub fn day10_p1() {
     println!("Day 10 Puzzle 1");
 

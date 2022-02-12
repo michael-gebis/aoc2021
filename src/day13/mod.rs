@@ -49,6 +49,7 @@ fn draw(maxx:usize, maxy:usize, pairs:HashSet<(usize,usize)>) {
 
 }
 
+#[allow(dead_code)]
 pub fn day13_p1() {
     println!("Day 13 Puzzle 1");
 
