@@ -5,6 +5,7 @@ use regex::Regex;
 //const FILENAME: &str = "src/day14/day14_input.txt";
 const FILENAME: &str = "src/day14/day14_example.txt";
 
+#[allow(dead_code)]
 pub fn day14_p1() {
     println!("Day 14 Puzzle 1");
 
@@ -77,5 +78,51 @@ pub fn day14_p1() {
 
     } else {
         panic!("Couldn't open {}", FILENAME);
+    }
+}
+
+// Puzzle 2 demands a more clever solution.
+// The size of the polymer is O(2n-1), so if we go to day 40,
+// we're talking around a terabyte if we attempt to calculate
+// and store the whole thing.
+
+// But we don't need to do that; instead, count adjacent pairs,
+// and then modify the counts at each step.
+
+// For example, for the example NNCB:
+//  NN: 1 pair
+//  NC: 1 pair
+//  CB: 1 pair
+
+// Then for each rule, subtract and add as appropriate.
+// NN-> C results in NCN, thus -1 NN, +1 NC, +1 CN
+// NC-> B results in NBC, thus -1 NC, +1 NB, +1 BC
+// CB-> H results in CHB, thus -1 CB, +1 CH, +1 HB
+// (The actual polymer is NCNBCHB, which lo and behold matches
+// the above counts)
+
+// This applies to the counts; for example, if we had 5 NN pairs, 
+// to compute the next step would be -5 NN, +5 NC, +5 CN
+
+// There's a little bit of trickiness in counting the actual
+// elements and not getting an off-by-one error, since the pairs
+// overlap, but that's just details. 
+#[allow(dead_code)]
+pub fn day14_p2() {
+    println!("Day 14 Puzzle 2");
+
+    if let Ok(lines) = util::read_lines(FILENAME) {
+        let mut rules: HashMap<(String, String), String> = HashMap::new();
+        let mut polymer:Vec<String> = Vec::new();
+        let re_insertion_rules = Regex::new(r"^([A-Z])([A-Z]) -> ([A-Z])$").unwrap();
+        let re_polymer_template = Regex::new(r"^([A-Z]+)$").unwrap();
+
+        for line in lines {
+            if let Ok(ip) = line {
+                if let Some(cap) = re_insertion_rules.captures(&ip) {
+                    println!("stub {}", ip);
+                }
+            }
+        }
     }
 }
