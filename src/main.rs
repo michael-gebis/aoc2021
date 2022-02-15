@@ -54,6 +54,6 @@ fn main() {
     //day14::day14_p2();
 
     day15::day15_p1();
-    //day15::day15_p2();
+    day15::day15_p2();
 }
 
