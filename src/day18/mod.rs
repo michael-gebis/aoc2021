@@ -10,19 +10,19 @@ const FILENAME: &str = "src/day18/day18_input.txt";
 // without a full tree implementation, but hey we're in
 // it to learn, to BinTree it is.
 #[derive(Debug)]
-enum BinTreeNode<T: num::Integer + num::NumCast> {
-    Leaf(T),
+enum BinTreeNode{
+    Leaf(i64),
     Branch {
-        left: Box<BinTreeNode<T>>,
-        right: Box<BinTreeNode<T>>,
+        left: Box<BinTreeNode>,
+        right: Box<BinTreeNode>,
     },
 }
 
-impl <T: num::Integer + num::NumCast> BinTreeNode<T> {
-    fn magnitude(self) -> T {
+impl BinTreeNode {
+    fn magnitude(self) -> i64 {
         match self {
             Self::Leaf(t) => t,
-            Self::Branch { left, right } => left.magnitude() * (T::one() + T::one() + T::one()) + right.magnitude() * (T::one() + T::one()),
+            Self::Branch { left, right } => left.magnitude() * 3 + right.magnitude() * 2,
         }
     }
 }
@@ -33,58 +33,57 @@ mod tests {
 
     #[test]
     fn test_create_left() {
-        let x:BinTreeNode<i64> = BinTreeNode::Leaf(9);
-        let y:BinTreeNode<i64> = BinTreeNode::Leaf(1);
-        let z:BinTreeNode<i64> = BinTreeNode::Branch{ left:Box::new(x), right:Box::new(y) };
+        let x:BinTreeNode = BinTreeNode::Leaf(9);
+        let y:BinTreeNode = BinTreeNode::Leaf(1);
+        let z:BinTreeNode = BinTreeNode::Branch{ left:Box::new(x), right:Box::new(y) };
         println!("Node {:?}", z);
         assert_eq!(z.magnitude(), 29);
     }
 
     #[test]
     fn test_parse_snailfish() {
-        let q = parse_snailfish::<u64>("[9,1]");
+        let q = parse_snailfish("[9,1]");
         println!("calculating magnitude of {:?}", q);
         assert_eq!(q.magnitude(), 29);
 
-        let q = parse_snailfish::<u64>("[1,9]");
+        let q = parse_snailfish("[1,9]");
         println!("calculating magnitude of {:?}", q);
         assert_eq!(q.magnitude(), 21);
 
-        let q = parse_snailfish::<u64>("[[9,1],[1,9]]");
+        let q = parse_snailfish("[[9,1],[1,9]]");
         println!("calculating magnitude of {:?}", q);
         assert_eq!(q.magnitude(), 129);
 
-        let q = parse_snailfish::<u64>("[[1,2],[[3,4],5]]");
+        let q = parse_snailfish("[[1,2],[[3,4],5]]");
         println!("calculating magnitude of {:?}", q);
         assert_eq!(q.magnitude(), 143);
 
-        let q = parse_snailfish::<u64>("[[[[0,7],4],[[7,8],[6,0]]],[8,1]]");
+        let q = parse_snailfish("[[[[0,7],4],[[7,8],[6,0]]],[8,1]]");
         println!("calculating magnitude of {:?}", q);
         assert_eq!(q.magnitude(), 1384);
         
-        let q = parse_snailfish::<u64>("[[[[1,1],[2,2]],[3,3]],[4,4]]");
+        let q = parse_snailfish("[[[[1,1],[2,2]],[3,3]],[4,4]]");
         println!("calculating magnitude of {:?}", q);
         assert_eq!(q.magnitude(), 445);
 
-        let q = parse_snailfish::<u64>("[[[[3,0],[5,3]],[4,4]],[5,5]]");
+        let q = parse_snailfish("[[[[3,0],[5,3]],[4,4]],[5,5]]");
         println!("calculating magnitude of {:?}", q);
         assert_eq!(dbg!(q.magnitude()), 791);
 
-        let q = parse_snailfish::<u64>("[[[[5,0],[7,4]],[5,5]],[6,6]]");
+        let q = parse_snailfish("[[[[5,0],[7,4]],[5,5]],[6,6]]");
         println!("calculating magnitude of {:?}", q);
         assert_eq!(q.magnitude(), 1137);
 
-        let q = parse_snailfish::<u64>("[[[[8,7],[7,7]],[[8,6],[7,7]]],[[[0,7],[6,6]],[8,7]]]");
+        let q = parse_snailfish("[[[[8,7],[7,7]],[[8,6],[7,7]]],[[[0,7],[6,6]],[8,7]]]");
         println!("calculating magnitude of {:?}", q);
         assert_eq!(dbg!(q.magnitude()), 3488);
-
     }
 }
 
 // I don't want to write a full lexer/parser... but maybe I have to.
 // A snailfish number is [(.*),(.*)], where .* can be either
 //  a number or a snailfish number
-fn parse_snailfish<T: num::Integer + num::NumCast>(x: &str) -> BinTreeNode<T> {
+fn parse_snailfish(x: &str) -> BinTreeNode {
     println!("Parsing Snailfish {}", x);
 
     //let x=T::mul(T::one(), 77);
@@ -93,25 +92,27 @@ fn parse_snailfish<T: num::Integer + num::NumCast>(x: &str) -> BinTreeNode<T> {
 
     let mut pos:usize = 0;
     let c:Vec<char> = x.chars().collect();
-    parse_snailfish_pos::<T>(&c, &mut pos)
+    parse_snailfish_pos(&c, &mut pos)
 
-    //BinTreeNode::Leaf(num::NumCast::from(77).unwrap())
 }
 
-fn parse_snailfish_pos<T: num::Integer + num::NumCast>(x: &[char], pos: &mut usize) -> BinTreeNode<T> {
+fn parse_snailfish_pos(x: &[char], pos: &mut usize) -> BinTreeNode {
 
     //let mut chars x[*pos..].chars();
 
     //let n = chars.next();
     //let n = x.get();
-    
+    // If there is a syntax error, this parser calls panic!()
+
     match x[*pos] {
         '[' => {
             println!("open bracket");
             *pos +=1;
-            let left:BinTreeNode<T> = parse_snailfish_pos(x,pos);
+            let left:BinTreeNode = parse_snailfish_pos(x,pos);
+            if x[*pos] != ',' {panic!("expected comma"); }
             *pos+=1;
-            let right:BinTreeNode<T> = parse_snailfish_pos(x,pos);
+            let right:BinTreeNode = parse_snailfish_pos(x,pos);
+            if x[*pos] != ']' { panic!("expected close bracet");}
             *pos+=1;
             return BinTreeNode::Branch{ left:Box::new(left), right:Box::new(right) };
         },
