@@ -25,7 +25,7 @@ pub fn day17_p1() {
             let mut yvel = yinitvelocity;
             let (mut x, mut y):(i64,i64) = (0,0);
             let mut ymax = y;
-            let mut hit: bool = false;
+            //let mut hit: bool = false;
 
             println!("xinit,yinit]={},{}", xinitvelocity, yinitvelocity);
             while x <= RANGE.1 && y >= RANGE.2 {
@@ -41,7 +41,7 @@ pub fn day17_p1() {
                 yvel -=1;
                 if x>=RANGE.0 && x<=RANGE.1 && y>= RANGE.2 && y<=RANGE.3 {
                     println!("  HIT!!!");
-                    hit = true;
+                    //hit = true;
                     hitcount+=1;
                     if ymax > ymaxmax {ymaxmax=ymax}
                     speeds.push((xinitvelocity,yinitvelocity));
@@ -57,15 +57,5 @@ pub fn day17_p1() {
     println!("ymaxmax={}", ymaxmax);
     println!("hitcount={}", hitcount);
     println!("{:?}", speeds);
-/*
-    if let Ok(lines) = util::read_lines(FILENAME) {
-        for line in lines {
-            if let Ok(ip) = line {
 
-            }
-        }
-    } else {
-        panic!("Couldn't open {}", FILENAME);
-    }
-*/
 }

@@ -1,7 +1,7 @@
 use crate::*;
-use std::collections::HashMap;
-use regex::Regex;
-use num::{Integer,NumCast};
+//use num::{Integer, NumCast};
+//use regex::Regex;
+//use std::collections::HashMap;
 
 const FILENAME: &str = "src/day18/day18_input.txt";
 //const FILENAME: &str = "src/day18/day18_example.txt";
@@ -9,8 +9,9 @@ const FILENAME: &str = "src/day18/day18_input.txt";
 // Day 18: I'm tempted to try to hack something together
 // without a full tree implementation, but hey we're in
 // it to learn, to BinTree it is.
+#[allow(dead_code)]
 #[derive(Debug)]
-enum BinTreeNode{
+enum BinTreeNode {
     Leaf(i64),
     Branch {
         left: Box<BinTreeNode>,
@@ -18,6 +19,7 @@ enum BinTreeNode{
     },
 }
 
+#[allow(dead_code)]
 impl BinTreeNode {
     fn magnitude(self) -> i64 {
         match self {
@@ -33,9 +35,12 @@ mod tests {
 
     #[test]
     fn test_create_left() {
-        let x:BinTreeNode = BinTreeNode::Leaf(9);
-        let y:BinTreeNode = BinTreeNode::Leaf(1);
-        let z:BinTreeNode = BinTreeNode::Branch{ left:Box::new(x), right:Box::new(y) };
+        let x: BinTreeNode = BinTreeNode::Leaf(9);
+        let y: BinTreeNode = BinTreeNode::Leaf(1);
+        let z: BinTreeNode = BinTreeNode::Branch {
+            left: Box::new(x),
+            right: Box::new(y),
+        };
         println!("Node {:?}", z);
         assert_eq!(z.magnitude(), 29);
     }
@@ -61,7 +66,6 @@ mod tests {
         let q = parse_snailfish("[[[[0,7],4],[[7,8],[6,0]]],[8,1]]");
         println!("calculating magnitude of {:?}", q);
         assert_eq!(q.magnitude(), 1384);
-        
         let q = parse_snailfish("[[[[1,1],[2,2]],[3,3]],[4,4]]");
         println!("calculating magnitude of {:?}", q);
         assert_eq!(q.magnitude(), 445);
@@ -83,42 +87,39 @@ mod tests {
 // I don't want to write a full lexer/parser... but maybe I have to.
 // A snailfish number is [(.*),(.*)], where .* can be either
 //  a number or a snailfish number
+#[allow(dead_code)]
 fn parse_snailfish(x: &str) -> BinTreeNode {
     println!("Parsing Snailfish {}", x);
 
-    //let x=T::mul(T::one(), 77);
-    let re_pair = Regex::new(r"^\[(.+),(.+)\]$").unwrap();
-    let re_digits = Regex::new(r"^(\d+)$").unwrap();
-
-    let mut pos:usize = 0;
-    let c:Vec<char> = x.chars().collect();
+    let mut pos: usize = 0;
+    let c: Vec<char> = x.chars().collect();
     parse_snailfish_pos(&c, &mut pos)
-
 }
 
+// If there is a syntax error, this parser calls panic!()
+#[allow(dead_code)]
 fn parse_snailfish_pos(x: &[char], pos: &mut usize) -> BinTreeNode {
-
-    //let mut chars x[*pos..].chars();
-
-    //let n = chars.next();
-    //let n = x.get();
-    // If there is a syntax error, this parser calls panic!()
-
     match x[*pos] {
         '[' => {
-            println!("open bracket");
-            *pos +=1;
-            let left:BinTreeNode = parse_snailfish_pos(x,pos);
-            if x[*pos] != ',' {panic!("expected comma"); }
-            *pos+=1;
-            let right:BinTreeNode = parse_snailfish_pos(x,pos);
-            if x[*pos] != ']' { panic!("expected close bracet");}
-            *pos+=1;
-            return BinTreeNode::Branch{ left:Box::new(left), right:Box::new(right) };
-        },
+            //println!("open bracket");
+            *pos += 1;
+            let left: BinTreeNode = parse_snailfish_pos(x, pos);
+            if x[*pos] != ',' {
+                panic!("expected comma at pos {}", *pos);
+            }
+            *pos += 1;
+            let right: BinTreeNode = parse_snailfish_pos(x, pos);
+            if x[*pos] != ']' {
+                panic!("expected close bracet at pos {}", *pos);
+            }
+            *pos += 1;
+            return BinTreeNode::Branch {
+                left: Box::new(left),
+                right: Box::new(right),
+            };
+        }
         _ => {
-            println!("number..."); 
-            let mut val:i64 = 0;
+            let mut val: i64 = 0;
 
             if x[*pos].is_digit(10) {
                 while x[*pos].is_digit(10) {
@@ -126,17 +127,12 @@ fn parse_snailfish_pos(x: &[char], pos: &mut usize) -> BinTreeNode {
                     val += x[*pos].to_digit(10).unwrap() as i64;
                     *pos += 1;
                 }
-                println!("Found number {}", val);
             } else {
-                panic!("wtf!");
+                panic!("expected digit at pos {}", *pos);
             }
             return BinTreeNode::Leaf(num::NumCast::from(val).unwrap());
-
         }
     }
-
-    //println!("What oh...");
-    //BinTreeNode::Leaf(num::NumCast::from(77).unwrap())
 }
 
 // Some binary tree links:
@@ -151,13 +147,14 @@ fn parse_snailfish_pos(x: &[char], pos: &mut usize) -> BinTreeNode {
 pub fn day18_p1() {
     println!("Day 18 Puzzle 2");
 
-    if let Ok(lines) = util::read_lines(FILENAME) {
+    if let Ok(_lines) = util::read_lines(FILENAME) {
+        /* 
         let mut rules: HashMap<(String, String), String> = HashMap::new();
-        let mut polymer:Vec<String> = Vec::new();
+        let mut polymer: Vec<String> = Vec::new();
         let re_insertion_rules = Regex::new(r"^([A-Z])([A-Z]) -> ([A-Z])$").unwrap();
         let re_polymer_template = Regex::new(r"^([A-Z]+)$").unwrap();
         let mut pair_counts: HashMap<(String, String), i64> = HashMap::new();
-
+        */
     } else {
         panic!("Couldn't open {}", FILENAME);
     }

@@ -5,7 +5,6 @@ use std::cell::Cell;
 use std::cmp::Ordering;
 use std::cmp::Reverse;
 use std::collections::BinaryHeap;
-use std::rc::Rc;
 
 const FILENAME: &str = "src/day15/day15_input.txt";
 //const FILENAME: &str = "src/day15/day15_example.txt";
