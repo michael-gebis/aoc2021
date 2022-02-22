@@ -1,7 +1,4 @@
 use crate::*;
-//use num::{Integer, NumCast};
-//use regex::Regex;
-//use std::collections::HashMap;
 use std::fmt;
 
 const FILENAME: &str = "src/day18/day18_input.txt";
@@ -10,10 +7,7 @@ const FILENAME: &str = "src/day18/day18_input.txt";
 // Day 18: I'm tempted to try to hack something together
 // without a full tree implementation, but hey we're in
 // it to learn, to BinTree it is.
-#[allow(dead_code)]
-#[derive(Debug)]
-#[derive(PartialEq)]
-#[derive(Clone)]
+#[derive(Debug, PartialEq, Clone)]
 enum BinTreeNode {
     Leaf(i64),
     Branch {
@@ -22,8 +16,9 @@ enum BinTreeNode {
     },
 }
 
-#[allow(dead_code)]
 impl BinTreeNode {
+    /// magnitude() returns the single i64 magnitude value
+    /// as defined in the README. Pop-pop!
     fn magnitude(self) -> i64 {
         match self {
             Self::Leaf(t) => t,
@@ -31,27 +26,29 @@ impl BinTreeNode {
         }
     }
 
-    fn add_noreduce(l:&BinTreeNode, r:&BinTreeNode) -> BinTreeNode {
+    /// Add two trees, but doesn't reduce the result
+    /// Useful for testing and debug
+    fn add_noreduce(l: &BinTreeNode, r: &BinTreeNode) -> BinTreeNode {
         return BinTreeNode::Branch {
             left: Box::new(l.clone()),
             right: Box::new(r.clone()),
         };
     }
 
-
-    fn add(l: &BinTreeNode, r:&BinTreeNode) -> BinTreeNode {
-        let mut x = BinTreeNode::add_noreduce(l,r);
-        BinTreeNode::reduce(&mut x);
-        return x;
+    /// Add two trees and reduce the result
+    fn add(l: &BinTreeNode, r: &BinTreeNode) -> BinTreeNode {
+        let mut tmp = BinTreeNode::add_noreduce(l, r);
+        BinTreeNode::reduce(&mut tmp);
+        return tmp;
     }
 
-    fn recursive_split(n:&mut BinTreeNode) -> bool {
+    fn split(n: &mut BinTreeNode) -> bool {
         // println!("  looking for splits...");
         match n {
             BinTreeNode::Leaf(t) => {
                 if *t >= 10 {
-                    let lval = *t/2; // round down
-                    let rval = (*t+1)/2;     // round up
+                    let lval = *t / 2; // round down
+                    let rval = (*t + 1) / 2; // round up
                     *n = BinTreeNode::Branch {
                         left: Box::new(BinTreeNode::Leaf(lval)),
                         right: Box::new(BinTreeNode::Leaf(rval)),
@@ -61,7 +58,7 @@ impl BinTreeNode {
                 }
                 false
             }
-            Self::Branch { left, right } => BinTreeNode::recursive_split(left) || BinTreeNode::recursive_split(right)
+            Self::Branch { left, right } => BinTreeNode::split(left) || BinTreeNode::split(right),
         }
     }
 
@@ -70,20 +67,19 @@ impl BinTreeNode {
         match root {
             None => {
                 //println!("  left was none;  to do");
-            },
+            }
             Some(mut node) => {
-                while let BinTreeNode::Branch{left:_,right} = node {
+                while let BinTreeNode::Branch { left: _, right } = node {
                     node = right;
                 }
                 if let BinTreeNode::Leaf(x) = node {
                     // println!("adding to {}", x);
                     if let BinTreeNode::Leaf(q) = val {
-                        *node = BinTreeNode::Leaf(*q+*x);
+                        *node = BinTreeNode::Leaf(*q + *x);
                     }
                 }
             }
         }
-
     }
 
     fn addto_right(root: Option<&mut BinTreeNode>, val: &BinTreeNode) {
@@ -91,48 +87,34 @@ impl BinTreeNode {
         match root {
             None => {
                 // println!("  right was none; Nothing to do");
-            },
+            }
             Some(mut node) => {
-                while let BinTreeNode::Branch{left,right:_} = node {
+                while let BinTreeNode::Branch { left, right: _ } = node {
                     node = left;
                 }
                 if let BinTreeNode::Leaf(x) = node {
                     // println!("adding to {}", x);
                     if let BinTreeNode::Leaf(q) = val {
-                        *node = BinTreeNode::Leaf(*q+*x);
+                        *node = BinTreeNode::Leaf(*q + *x);
                     }
                 }
             }
-        }        
+        }
     }
 
-
-    fn assplode(n:&mut BinTreeNode, lbud: Option<&mut BinTreeNode>, rbud: Option<&mut BinTreeNode>, depth: i64) -> bool {
-
+    fn assplode(
+        n: &mut BinTreeNode,
+        lbud: Option<&mut BinTreeNode>,
+        rbud: Option<&mut BinTreeNode>,
+        depth: i64,
+    ) -> bool {
         // println!("assploding at depth={}", depth);
-
-        /*
-        if depth >= 3 {
-            match n {
-                Self::Branch {left, right} => {
-                    Self::addto_left(lbud, left);
-                    Self::addto_right(rbud, right);
-                    return true;        
-                },
-                _ => return false,
-
-            }
-        } else {
-            a
-        }
-        */
-
         match n {
-            Self::Leaf(val) => {
+            Self::Leaf(_val) => {
                 // println!("Found leaf val={}", val);
                 return false;
-            },
-            Self::Branch{left,right} => {
+            }
+            Self::Branch { left, right } => {
                 if depth >= 4 {
                     // println!("BOOOM");
                     Self::addto_left(lbud, left);
@@ -140,33 +122,29 @@ impl BinTreeNode {
                     *n = BinTreeNode::Leaf(0);
                     return true;
                 }
-                return Self::assplode(left, lbud, Some(right), depth+1) || Self::assplode(right, Some(left), rbud, depth+1);
+                return Self::assplode(left, lbud, Some(right), depth + 1)
+                    || Self::assplode(right, Some(left), rbud, depth + 1);
             }
         }
-
     }
 
-    fn explode(n:&mut BinTreeNode) -> bool {
-        // println!("Doing explode on {}", n);
-        let ret = BinTreeNode:: assplode(n, None, None, 0);
-        // println!("  exploded = {}", n);
-        ret
+    fn explode(n: &mut BinTreeNode) -> bool {
+        BinTreeNode::assplode(n, None, None, 0)
     }
 
-    fn reduce(n:&mut BinTreeNode) {
-        while BinTreeNode::explode(n) || BinTreeNode::recursive_split(n) {
+    fn reduce(n: &mut BinTreeNode) {
+        while BinTreeNode::explode(n) || BinTreeNode::split(n) {
             //println!("reducing");
         }
     }
 }
 
 // I just think recursion is prety neat.
-#[allow(dead_code)]
 impl fmt::Display for BinTreeNode {
     fn fmt(&self, f: &mut fmt::Formatter) -> std::result::Result<(), std::fmt::Error> {
         match self {
-            Self::Leaf(t) => write!(f, "{}", t),
-            Self::Branch {left, right} => write!(f, "[{},{}]", left, right),
+            Self::Leaf(val) => write!(f, "{}", val),
+            Self::Branch { left, right } => write!(f, "[{},{}]", left, right),
         }
     }
 }
@@ -227,24 +205,24 @@ mod tests {
     }
 
     #[test]
-    fn test_recursive_split() {
+    fn test_split() {
         let q = &mut parse_snailfish("[10,1]");
-        BinTreeNode::recursive_split(q);
+        BinTreeNode::split(q);
         let expected = parse_snailfish("[[5,5],1]");
-        println!("split={}",q);
-        assert_eq!(expected,*q);
+        println!("split={}", q);
+        assert_eq!(expected, *q);
 
         let q = &mut parse_snailfish("[1,11]");
-        BinTreeNode::recursive_split(q);
-        let expected = parse_snailfish("[1,[6,5]]");
-        println!("split={}",q);
-        assert_eq!(expected,*q);
+        BinTreeNode::split(q);
+        let expected = parse_snailfish("[1,[5,6]]");
+        println!("split={}", q);
+        assert_eq!(expected, *q);
 
         let q = &mut parse_snailfish("[12,15]");
-        while BinTreeNode::recursive_split(q) {
+        while BinTreeNode::split(q) {
             println!("doing split...");
         }
-        println!("split={}",q);
+        println!("split={}", q);
     }
 
     #[test]
@@ -281,50 +259,48 @@ mod tests {
     fn test_add_noreduce() {
         let l = parse_snailfish("[[[[4,3],4],4],[7,[[8,4],9]]]");
         let r = parse_snailfish("[1,1]");
-        let sum = &mut BinTreeNode::add_noreduce(&l,&r);
+        let sum = &mut BinTreeNode::add_noreduce(&l, &r);
 
         let expected = &mut parse_snailfish("[[[[[4,3],4],4],[7,[[8,4],9]]],[1,1]]");
-        assert_eq!(expected,sum);
+        assert_eq!(expected, sum);
     }
 
     #[test]
     fn test_add() {
         let l = parse_snailfish("[[[[4,3],4],4],[7,[[8,4],9]]]");
         let r = parse_snailfish("[1,1]");
-        let sum = &mut BinTreeNode::add(&l,&r);
-        
-        let expected = &mut parse_snailfish("[[[[0,7],4],[[7,8],[6,0]]],[8,1]]"); 
-        assert_eq!(expected,sum);
+        let sum = &mut BinTreeNode::add(&l, &r);
+
+        let expected = &mut parse_snailfish("[[[[0,7],4],[[7,8],[6,0]]],[8,1]]");
+        assert_eq!(expected, sum);
     }
 }
 
 // I don't want to write a full lexer/parser... but maybe I have to.
 // A snailfish number is [(.*),(.*)], where .* can be either
 //  a number or a snailfish number
-#[allow(dead_code)]
 fn parse_snailfish(x: &str) -> BinTreeNode {
     println!("Parsing Snailfish {}", x);
 
     let mut pos: usize = 0;
-    let c: Vec<char> = x.chars().collect();
-    parse_snailfish_pos(&c, &mut pos)
+    let tokens: Vec<char> = x.chars().collect();
+    parse_snailfish_pos(&tokens, &mut pos)
 }
 
 // If there is a syntax error, this parser calls panic!()
-#[allow(dead_code)]
-fn parse_snailfish_pos(x: &[char], pos: &mut usize) -> BinTreeNode {
-    match x[*pos] {
+fn parse_snailfish_pos(tokens: &[char], pos: &mut usize) -> BinTreeNode {
+    match tokens[*pos] {
         '[' => {
             //println!("open bracket");
             *pos += 1;
-            let left: BinTreeNode = parse_snailfish_pos(x, pos);
-            if x[*pos] != ',' {
+            let left: BinTreeNode = parse_snailfish_pos(tokens, pos);
+            if tokens[*pos] != ',' {
                 panic!("expected comma at pos {}", *pos);
             }
             *pos += 1;
-            let right: BinTreeNode = parse_snailfish_pos(x, pos);
-            if x[*pos] != ']' {
-                panic!("expected close bracet at pos {}", *pos);
+            let right: BinTreeNode = parse_snailfish_pos(tokens, pos);
+            if tokens[*pos] != ']' {
+                panic!("expected close bracket at pos {}", *pos);
             }
             *pos += 1;
             return BinTreeNode::Branch {
@@ -335,16 +311,21 @@ fn parse_snailfish_pos(x: &[char], pos: &mut usize) -> BinTreeNode {
         _ => {
             let mut val: i64 = 0;
 
-            if x[*pos].is_digit(10) {
-                while x[*pos].is_digit(10) {
+            if tokens[*pos].is_digit(10) {
+                // In theory, there shouldn't be a multi digit value,
+                // since the "reduce()" function should have split any
+                // values greater than 10, and the input files should
+                // contain snailfish numbers that are already reduced.
+                // But just in case (and for testing) handle it anyways.
+                while tokens[*pos].is_digit(10) {
                     val *= 10;
-                    val += x[*pos].to_digit(10).unwrap() as i64;
+                    val += tokens[*pos].to_digit(10).unwrap() as i64;
                     *pos += 1;
                 }
             } else {
                 panic!("expected digit at pos {}", *pos);
             }
-            return BinTreeNode::Leaf(num::NumCast::from(val).unwrap());
+            return BinTreeNode::Leaf(val);
         }
     }
 }
@@ -362,15 +343,14 @@ pub fn day18_p1() {
     println!("Day 18 Puzzle 1");
 
     if let Ok(lines) = util::read_lines(FILENAME) {
-        let mut total:Option<BinTreeNode> = None;
+        let mut total: Option<BinTreeNode> = None;
         for line in lines {
             if let Ok(ip) = line {
                 let snailfish = parse_snailfish(&ip);
                 if let Some(sf) = total {
                     total = Some(BinTreeNode::add(&sf, &snailfish));
-                    //total = Some(snailfish);
                 } else {
-                   total = Some(snailfish);
+                    total = Some(snailfish);
                 }
             }
         }
@@ -386,22 +366,22 @@ pub fn day18_p2() {
 
     if let Ok(lines) = util::read_lines(FILENAME) {
         let mut all_snailfish: Vec<BinTreeNode> = Vec::new();
-        //let mut total:Option<BinTreeNode> = None;
         for line in lines {
             if let Ok(ip) = line {
-                let snailfish = parse_snailfish(&ip);
-                all_snailfish.push(snailfish);
+                all_snailfish.push(parse_snailfish(&ip));
             }
         }
 
         let mut max_sum = i64::MIN;
+        // O(n^2) as we have to test all pairs, and the
+        // computation is not commutative
         for i in &all_snailfish {
             for j in &all_snailfish {
-                if *i == *j { continue; }
-                    let v = BinTreeNode::magnitude(BinTreeNode::add(i, j));
-                    if v > max_sum {
-                        max_sum = v;
-                    }
+                // Problem says "all different pairs"
+                if *i == *j {
+                    continue;
+                }
+                max_sum = i64::max(max_sum, BinTreeNode::magnitude(BinTreeNode::add(i, j)));
             }
         }
         println!("Biggest magnitude = {}", max_sum);
