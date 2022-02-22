@@ -62,6 +62,8 @@ fn main() {
     //day16::day16_p1();
 
     //day17::day17_p1();
+    
     day18::day18_p1();
+    day18::day18_p2();
 }
 
