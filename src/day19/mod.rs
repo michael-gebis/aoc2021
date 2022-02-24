@@ -4,8 +4,8 @@ use std::collections::HashMap;
 use std::collections::HashSet;
 use std::fmt;
 
-const FILENAME: &str = "src/day19/day19_input.txt";
-//const FILENAME: &str = "src/day19/day19_example.txt";
+//const FILENAME: &str = "src/day19/day19_input.txt";
+const FILENAME: &str = "src/day19/day19_example.txt";
 //const FILENAME: &str = "src/day19/day19_miniA.txt";
 
 #[derive (Debug, Clone, Eq, Hash, Copy)]
@@ -66,11 +66,12 @@ impl Point3d {
 struct ProbeData {
     points: HashSet<Point3d>,
     rotation_count: i32,
+    is_final: bool,
 }
 
 impl ProbeData {
     fn new() -> ProbeData {
-        ProbeData { points: HashSet::new(), rotation_count: 0 }
+        ProbeData { points: HashSet::new(), rotation_count: 0, is_final: false }
     }
 
     fn rotate(&mut self) {
@@ -103,7 +104,7 @@ impl ProbeData {
 
 fn check_overlaps(allpoints: &HashSet<Point3d>, probe: &ProbeData, offset: &mut Offset) -> i64 {
     let count = allpoints.len() * probe.points.len();
-    println!("check_overlaps will have to compute {} potential overlaps", count);
+    //println!("check_overlaps will have to compute {} potential overlaps", count);
 
     for fixed_p in allpoints.iter() {
         for probe_p in probe.points.iter() {
@@ -111,21 +112,21 @@ fn check_overlaps(allpoints: &HashSet<Point3d>, probe: &ProbeData, offset: &mut 
             //let tmp_offset = fixed_p.get_offset(probe_p);
             let mut oq = 0;
 
-            println!("checking overlap {:?}", tmp_offset);
-            println!("fixed_p: {:?}", fixed_p);
-            println!("probe_p: {:?}", probe_p);
+            //println!("checking overlap {:?}", tmp_offset);
+            //println!("fixed_p: {:?}", fixed_p);
+            //println!("probe_p: {:?}", probe_p);
 
             for probe_p in probe.points.iter() {
                 let test_p = probe_p.add_offset(&tmp_offset);
-                println!("  test_p : {:?}", test_p);
+                //println!("  test_p : {:?}", test_p);
                 if allpoints.contains(&test_p) {
-                    println!("Allpoints contains point {:?}", test_p);
+                    //println!("Allpoints contains point {:?}", test_p);
                     oq += 1;
                 }
             }
-            println!("-->oq={}",oq);
+            //println!("-->oq={}",oq);
             if oq >= 2 {
-                println!("Found {} overlaps", oq);
+                //println!("Found {} overlaps", oq);
                 //offset = tmp_offset;
                 offset.x = tmp_offset.x;
                 offset.y = tmp_offset.y;
@@ -179,23 +180,29 @@ pub fn day19_p1() {
         for point in probelist[0].points.iter() {
             allpoints.insert(*point);
         }
-        for a in 0..probelist.len() {
-            for p in 1..probelist.len() {
-            //for p in 1..2 {
-                if a == p {continue;}
-                for r in 0..24 {
-                    println!("Rotation {}", r);
+        probelist[0].is_final = true;
 
-                    println!("{:#?}", probelist[p]);
+        for p in 1..probelist.len() {
+            for a in 0..p {
+            //for p in 1..2 {
+                if a == p {
+                    continue;
+                }
+                for r in 0..24 {
+                    //println!("Rotation {}", r);
+
+                    //println!("{:#?}", probelist[p]);
                     let mut offset = Offset {x:0,y:0,z:0};
                     //let overlap_count = check_overlaps(&allpoints, &probelist[p], &mut offset);
                     let overlap_count = check_overlaps(&probelist[a].points, &probelist[p], &mut offset);
                     if overlap_count >= 12 {
                         println!(" YAY: a={}, p={}, r={}", a,p,r);
+                        probelist[p].is_final = true;
+                        //break;
                     }
                     probelist[p].rotate();
-                    println!("overlap_count = {}", overlap_count);
-                    println!("");
+                    //println!("overlap_count = {}", overlap_count);
+                    //println!("");
                 }
             }
         }
