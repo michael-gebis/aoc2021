@@ -1,9 +1,7 @@
 use crate::*;
 use regex::Regex;
-use std::collections::HashMap;
 use std::collections::HashSet;
 use std::collections::VecDeque;
-use std::fmt;
 
 const FILENAME: &str = "src/day19/day19_input.txt";
 //const FILENAME: &str = "src/day19/day19_example.txt";
@@ -31,7 +29,6 @@ impl PartialEq for Point3d {
 
 impl Point3d {
     fn new(x: i64, y: i64, z: i64) -> Point3d {
-        //ProbeData { points: HashSet::new(), rotation_count: 0 }
         Point3d { x: x, y: y, z: z }
     }
 
@@ -69,14 +66,6 @@ impl Point3d {
             z: self.z + offset.z,
         }
     }
-
-    fn sub_offset(&self, offset: &Offset) -> Point3d {
-        Point3d {
-            x: self.x - offset.x,
-            y: self.y - offset.y,
-            z: self.z - offset.z,
-        }
-    }
 }
 
 #[derive(Debug)]
@@ -85,7 +74,6 @@ struct ProbeData {
     rotation_count: i32,
     probe_id: usize,
     probe_offset: Offset,
-    is_final: bool,
 }
 
 impl ProbeData {
@@ -94,8 +82,7 @@ impl ProbeData {
             points: HashSet::new(),
             rotation_count: 0,
             probe_id: id,
-            probe_offset: Offset{x:0, y:0, z:0},
-            is_final: false,
+            probe_offset: Offset { x: 0, y: 0, z: 0 },
         }
     }
 
@@ -135,14 +122,7 @@ impl ProbeData {
     }
 }
 
-//for r in 0..24 {
-//    overlap_count = check_overlaps(&allpoints, &probe);
-//}
-
 fn check_overlaps(allpoints: &HashSet<Point3d>, probe: &ProbeData, offset: &mut Offset) -> i64 {
-    let count = allpoints.len() * probe.points.len();
-    //println!("check_overlaps will have to compute {} potential overlaps", count);
-
     for fixed_p in allpoints.iter() {
         for probe_p in probe.points.iter() {
             let tmp_offset = probe_p.get_offset(fixed_p);
@@ -184,15 +164,11 @@ pub fn day19_p1() {
     println!("Day 19 Puzzle 1");
 
     // --- scanner 36 ---
-    // 721,-680,490
-
-    //let re_pairs = Regex::new(r"^(\d+),(\d+)$").unwrap();
-    //let re_folds = Regex::new(r"^fold along (.)=(\d+)$").unwrap();
     let re_scanner = Regex::new(r"^--- scanner (\d+) ---$").unwrap();
+    // 721,-680,490
     let re_point = Regex::new(r"^(.+),(.+),(.+)$").unwrap();
 
     if let Ok(lines) = util::read_lines(FILENAME) {
-        //let mut total:Option<BinTreeNode> = None;
         let mut probelist: VecDeque<ProbeData> = VecDeque::new();
         let mut cur_scanner: usize = 0;
         for line in lines {
@@ -223,7 +199,6 @@ pub fn day19_p1() {
             completed_beacons.insert(*point);
         }
         completed_scanners.push_back(probelist.pop_front().unwrap());
-        //probelist[0].is_final = true;
 
         let mut checked_list: HashSet<(usize, usize)> = HashSet::new();
 
@@ -269,53 +244,17 @@ pub fn day19_p1() {
         let mut max_md = i64::MIN;
         for a in &completed_scanners {
             for b in &completed_scanners {
-                let manhattan_distance = 
-                    (a.probe_offset.x - b.probe_offset.x).abs() +
-                    (a.probe_offset.y - b.probe_offset.y).abs() +
-                    (a.probe_offset.z - b.probe_offset.z).abs();
-                println!("scanners {},{} md={}", a.probe_id, b.probe_id, manhattan_distance);
+                let manhattan_distance = (a.probe_offset.x - b.probe_offset.x).abs()
+                    + (a.probe_offset.y - b.probe_offset.y).abs()
+                    + (a.probe_offset.z - b.probe_offset.z).abs();
+                println!(
+                    "scanners {},{} md={}",
+                    a.probe_id, b.probe_id, manhattan_distance
+                );
                 max_md = i64::max(max_md, manhattan_distance);
             }
         }
         println!("max_md={}", max_md);
-
-        /*
-        for p in 1..probelist.len() {
-            for a in 0..p {
-            //for p in 1..2 {
-                if a == p {
-                    continue;
-                }
-                for r in 0..24 {
-                    //println!("Rotation {}", r);
-
-                    //println!("{:#?}", probelist[p]);
-                    let mut offset = Offset {x:0,y:0,z:0};
-                    //let overlap_count = check_overlaps(&allpoints, &probelist[p], &mut offset);
-                    let overlap_count = check_overlaps(&probelist[a].points, &probelist[p], &mut offset);
-                    if overlap_count >= 12 {
-                        println!(" YAY: a={}, p={}, r={}", a,p,r);
-                        probelist[p].is_final = true;
-                        //break;
-                    }
-                    probelist[p].rotate();
-                    //println!("overlap_count = {}", overlap_count);
-                    //println!("");
-                }
-            }
-        }
-        */
-
-        /*
-        let mut pd = ProbeData::new();
-        pd.insert(Point3d::new(3,4,5));
-
-        for _ in 0..24 {
-            println!("pd = {:?}", pd);
-            pd.rotate();
-        }
-        println!("final pd = {:?}", pd);
-        */
     } else {
         panic!("Couldn't open {}", FILENAME);
     }
