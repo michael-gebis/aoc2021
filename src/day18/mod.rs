@@ -42,8 +42,13 @@ impl BinTreeNode {
         return tmp;
     }
 
+    // Descend the tree, looking for any Leaf with a value
+    // of 10 or more.  If so, split it, and return true.
+
+    // If no nodes are found, return false.
+    
+    // At most, a single split will happen.
     fn split(n: &mut BinTreeNode) -> bool {
-        // println!("  looking for splits...");
         match n {
             BinTreeNode::Leaf(t) => {
                 if *t >= 10 {
@@ -218,6 +223,8 @@ mod tests {
         println!("split={}", q);
         assert_eq!(expected, *q);
 
+        // Only one split is done at a time; this
+        // snailfish needs two splits
         let q = &mut parse_snailfish("[12,15]");
         while BinTreeNode::split(q) {
             println!("doing split...");
@@ -273,6 +280,13 @@ mod tests {
 
         let expected = &mut parse_snailfish("[[[[0,7],4],[[7,8],[6,0]]],[8,1]]");
         assert_eq!(expected, sum);
+        let mut split_count = 0;
+        while BinTreeNode::recursive_split(q) {
+            println!("Did a split; trying again...");
+            split_count += 1;
+        }
+        println!("split={}",q);
+        assert_eq!(2,split_count);
     }
 }
 
