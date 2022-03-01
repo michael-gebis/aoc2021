@@ -73,6 +73,8 @@ fn main() {
     //day19::day19_p1();
 
     //day20::day20_p1();
-    day21::day21_p1();
+    
+    //day21::day21_p1();
+    day21::day21_p2();
 }
 
