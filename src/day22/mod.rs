@@ -11,9 +11,9 @@ pub fn day22_p1() {
     println!("Day 22 Puzzle 1");
 
     if let Ok(lines) = util::read_lines(FILENAME) {
-
-        let re_player1 = Regex::new(r"^Player 1 starting position: (\d+)$").unwrap();
-        let re_player2 = Regex::new(r"^Player 2 starting position: (\d+)$").unwrap();
+        // off x=-54112..-39298,y=-85059..-49293,z=-27449..7877
+        let re_line =
+            Regex::new(r"(o.+) x=(-?\d+)\.\.(-?\d+),y=(-?\d+)\.\.(-?\d+),z=(-?\d+)\.\.(-?\d+)");
 
         for line in lines {
             if let Ok(ip) = line {
