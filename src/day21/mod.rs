@@ -135,7 +135,7 @@ const QSCORE_WIN:i8 = 21;
 
 #[allow(dead_code)]
 pub fn day21_p2() {
-    println!("Day 21 Puzzle 1");
+    println!("Day 21 Puzzle 2");
 
     if let Ok(lines) = util::read_lines(FILENAME) {
 
