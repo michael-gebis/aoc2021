@@ -280,13 +280,15 @@ mod tests {
 
         let expected = &mut parse_snailfish("[[[[0,7],4],[[7,8],[6,0]]],[8,1]]");
         assert_eq!(expected, sum);
+        /*
         let mut split_count = 0;
-        while BinTreeNode::recursive_split(q) {
+        while BinTreeNode::split(sum) {
             println!("Did a split; trying again...");
             split_count += 1;
         }
-        println!("split={}",q);
+        println!("split={}",sum);
         assert_eq!(2,split_count);
+        */
     }
 }
 
