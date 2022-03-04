@@ -63,7 +63,7 @@ Thus the two squares have now been divided into 5 non-overlapping squares.
 
 */
 
-#[derive(Debug, PartialEq, Eq, Hash)]
+#[derive(Clone, Debug, PartialEq, Eq, Hash)]
 struct CubeRange {
     start: i64,
     end: i64,
@@ -292,7 +292,7 @@ mod tests {
     }
 }
 
-#[derive(Debug, PartialEq, Eq, Hash)]
+#[derive(Copy, Clone, Debug, PartialEq, Eq, Hash)]
 enum CubeType {
     On,
     Off,
@@ -338,6 +338,45 @@ impl Cube {
         self.xrange.intersect(&other.xrange) != None
             && self.yrange.intersect(&other.yrange) != None
             && self.zrange.intersect(&other.zrange) != None
+    }
+
+    fn set_xrange(&mut self, r: &CubeRange) {
+        self.xrange = r.clone();
+    }
+
+    fn set_yrange(&mut self, r: &CubeRange) {
+        self.yrange = r.clone();
+    }
+
+    fn set_zrange(&mut self, r:&CubeRange) {
+        self.zrange = r.clone();
+    }
+
+    fn clone_and_set_xrange(&self, r: &CubeRange) -> Cube {
+        Cube {
+            xrange: CubeRange::new(r.start, r.end), 
+            yrange: self.yrange.clone(),
+            zrange: self.zrange.clone(),
+            cubetype: self.cubetype
+        }
+    }
+
+    fn clone_and_set_yrange(&self, r: &CubeRange) -> Cube {
+        Cube {
+            xrange: self.xrange.clone(), 
+            yrange: CubeRange::new(r.start, r.end),
+            zrange: self.zrange.clone(),
+            cubetype: self.cubetype
+        }
+    }
+
+    fn clone_and_set_zrange(&self, r: &CubeRange) -> Cube {
+        Cube {
+            xrange: self.xrange.clone(), 
+            yrange: self.yrange.clone(),
+            zrange: CubeRange::new(r.start, r.end),
+            cubetype: self.cubetype
+        }
     }
 
     // Slice?
@@ -406,20 +445,11 @@ pub fn day22_p1() {
                     println!("  new cube {}", &tmp_cube);
                     println!("  existing {}", &c);
                     // Slice off non-intersecting bits on the x-axis:
-
                     let (x_left, x_right) = c.xrange.subtract(&tmp_cube.xrange);
 
                     match x_left {
                         Some(r) => {
-                            let pc = Cube::new(
-                                CubeType::On,
-                                r.start,
-                                r.end,
-                                c.yrange.start,
-                                c.yrange.end,
-                                c.zrange.start,
-                                c.zrange.end,
-                            );
+                            let pc = c.clone_and_set_xrange(&r);
                             println!("  sliced off from existing {}", &pc);
                             pending_cubes.push_back(pc);
                         }
@@ -428,15 +458,7 @@ pub fn day22_p1() {
 
                     match x_right {
                         Some(r) => {
-                            let pc = Cube::new(
-                                CubeType::On,
-                                r.start,
-                                r.end,
-                                c.yrange.start,
-                                c.yrange.end,
-                                c.zrange.start,
-                                c.zrange.end,
-                            );
+                            let pc = c.clone_and_set_xrange(&r);
                             println!("  sliced off from existing {}", &pc);
                             pending_cubes.push_back(pc);
                         }
@@ -446,15 +468,7 @@ pub fn day22_p1() {
                     let (x_left, x_right) = tmp_cube.xrange.subtract(&c.xrange);
                     match x_left {
                         Some(r) => {
-                            let pc = Cube::new(
-                                CubeType::On,
-                                r.start,
-                                r.end,
-                                tmp_cube.yrange.start,
-                                tmp_cube.yrange.end,
-                                tmp_cube.zrange.start,
-                                tmp_cube.zrange.end,
-                            );
+                            let pc = tmp_cube.clone_and_set_xrange(&r);
                             println!("  sliced off from new {}", &pc);
                             pending_cubes.push_back(pc);
                         }
@@ -463,15 +477,7 @@ pub fn day22_p1() {
 
                     match x_right {
                         Some(r) => {
-                            let pc = Cube::new(
-                                CubeType::On,
-                                r.start,
-                                r.end,
-                                tmp_cube.yrange.start,
-                                tmp_cube.yrange.end,
-                                tmp_cube.zrange.start,
-                                tmp_cube.zrange.end,
-                            );
+                            let pc = tmp_cube.clone_and_set_xrange(&r);
                             println!("  sliced off from new {}", &pc);
                             pending_cubes.push_back(pc);
                         }
@@ -479,26 +485,8 @@ pub fn day22_p1() {
                     }
 
                     let r = c.xrange.intersect(&tmp_cube.xrange).unwrap();
-                    let c2 = Cube::new(
-                        CubeType::On,
-                        r.start,
-                        r.end,
-                        c.yrange.start,
-                        c.yrange.end,
-                        c.zrange.start,
-                        c.zrange.end,
-                    );
-
-                    let c3 = Cube::new(
-                        CubeType::On,
-                        r.start,
-                        r.end,
-                        tmp_cube.yrange.start,
-                        tmp_cube.yrange.end,
-                        tmp_cube.zrange.start,
-                        tmp_cube.zrange.end,
-                    );
-                    //println!("intersecting bit {:?}", tmp_cube);
+                    let c2 = c.clone_and_set_xrange(&r); 
+                    let c3 = tmp_cube.clone_and_set_xrange(&r);
                     println!("  Remaining c2 {}", c2);
                     println!("  Remaining c3 {}", c3);
 
