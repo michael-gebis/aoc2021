@@ -5,9 +5,12 @@ use std::collections::HashSet;
 use std::collections::VecDeque;
 use std::fmt;
 
-//const FILENAME: &str = "src/day22/day22_input.txt";
-const FILENAME: &str = "src/day22/day22_exampleA.txt";
+//const FILENAME: &str = "src/day22/day22_example0.txt";
+//const FILENAME: &str = "src/day22/day22_example1.txt";
+//const FILENAME: &str = "src/day22/day22_exampleA.txt";
 //const FILENAME: &str = "src/day22/day22_exampleB.txt";
+//const FILENAME: &str = "src/day22/day22_exampleC.txt";
+const FILENAME: &str = "src/day22/day22_input.txt";
 
 /*
 Imagine the 2D squares:
@@ -90,7 +93,7 @@ impl CubeRange {
     }
 
     pub fn width(&self) -> i64 {
-        self.end - self.start
+        self.end - self.start + 1
     }
 
     pub fn intersect(&self, other: &CubeRange) -> Option<CubeRange> {
@@ -304,7 +307,7 @@ impl fmt::Display for CubeType {
     }
 }
 
-#[derive(Debug, PartialEq, Eq, Hash)]
+#[derive(Clone, Debug, PartialEq, Eq, Hash)]
 struct Cube {
     xrange: CubeRange,
     yrange: CubeRange,
@@ -330,8 +333,8 @@ impl Cube {
         }
     }
 
-    fn volume(&self) -> i64 {
-        self.xrange.width() * self.yrange.width() * self.zrange.width()
+    fn volume(&self) -> u64 {
+        self.xrange.width() as u64 * self.yrange.width() as u64 * self.zrange.width() as u64
     }
 
     fn check_intersect(&self, other: &Cube) -> bool {
@@ -379,7 +382,15 @@ impl Cube {
         }
     }
 
-    // Slice?
+    fn is_near_origin(&self) -> bool {
+        self.xrange.start.abs() <= 50 &&
+           self.xrange.end.abs() <= 50 &&
+           self.yrange.start.abs() <= 50 &&
+           self.yrange.end.abs() <= 50 &&
+           self.zrange.start.abs() <= 50 &&
+           self.zrange.end.abs() <= 50  
+    }
+
 }
 impl fmt::Display for Cube {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
@@ -425,8 +436,10 @@ pub fn day22_p1() {
                         cap[6].parse::<i64>().unwrap(),
                         cap[7].parse::<i64>().unwrap(),
                     );
-                    println!("Found cube: {}", cube);
-                    pending_cubes.push_back(cube);
+                    if  true || cube.is_near_origin() {
+                        println!("Found cube: {}", cube);
+                        pending_cubes.push_back(cube);
+                    }
                 } else {
                     println!("Ignoring line '{}'", ip);
                 }
@@ -439,9 +452,12 @@ pub fn day22_p1() {
         'a: while !pending_cubes.is_empty() {
             c1 = pending_cubes.pop_front().unwrap();
             let mut tmp_completed: VecDeque<Cube> = VecDeque::new();
-            for c in completed_cubes.iter() {
-                let c0 = c.clone();
+            let mut intersects = false;
+            let mut c: Cube = Cube::new(CubeType::On, 0,0,0,0,0,0);
+            for c0 in completed_cubes.iter() {
+                c = c0.clone(); // keep a copy
                 if c1.check_intersect(&c0) {
+                    intersects = true;
                     println!("Adding intersecting cube");
                     println!("  new cube {}", &c1);
                     println!("  existing {}", &c0);
@@ -451,7 +467,7 @@ pub fn day22_p1() {
                     let (x_left, x_right) = c0.xrange.subtract(&c1.xrange);
                     if let Some(r) = x_left {
                         let pc = c0.clone_and_set_xrange(&r);
-                        println!("  sliced off from existing {}", &pc);
+                        println!("  sliced off 2 from existing {}", &pc);
                         tmp_completed.push_back(pc);
                     }
                     if let Some(r) = x_right {
@@ -466,13 +482,13 @@ pub fn day22_p1() {
                     if let Some(r) = x_left {
                         let pc = c1.clone_and_set_xrange(&r);
                         println!("  sliced off from new {}", &pc);
-                        pending_cubes.push_back(pc);
+                        pending_cubes.push_front(pc);
                     }
 
                     if let Some(r) = x_right {
                         let pc = c1.clone_and_set_xrange(&r);
-                        println!("  sliced off from new {}", &pc);
-                        pending_cubes.push_back(pc);
+                        println!("  sliced off 2 from new {}", &pc);
+                        pending_cubes.push_front(pc);
                     }
 
                     // Find remaining c2 and c3
@@ -492,23 +508,23 @@ pub fn day22_p1() {
                     }
                     if let Some(r) = y_right {
                         let pc = c0.clone_and_set_yrange(&r);
-                        println!("  sliced off from existing {}", &pc);
+                        println!("  sliced off 2 from existing {}", &pc);
                         tmp_completed.push_back(pc);                        
                     }
 
-                    // Slice off non-intersecting bits from c1 on the x-axis
+                    // Slice off non-intersecting bits from c1 on the Y-axis
                     // Sliced bits go to pending_cubes to be re-checked
                     let (y_left, y_right) = c1.yrange.subtract(&c0.yrange);
                     if let Some(r) = y_left {
                         let pc = c1.clone_and_set_yrange(&r);
                         println!("  sliced off from new {}", &pc);
-                        pending_cubes.push_back(pc);
+                        pending_cubes.push_front(pc);
                     }
 
                     if let Some(r) = y_right {
                         let pc = c1.clone_and_set_yrange(&r);
-                        println!("  sliced off from new {}", &pc);
-                        pending_cubes.push_back(pc);
+                        println!("  sliced off 2 from new {}", &pc);
+                        pending_cubes.push_front(pc);
                     }
 
                     // Find remaining c2 and c3
@@ -528,23 +544,23 @@ pub fn day22_p1() {
                     }
                     if let Some(r) = z_right {
                         let pc = c0.clone_and_set_zrange(&r);
-                        println!("  sliced off from existing {}", &pc);
+                        println!("  sliced off 2 from existing {}", &pc);
                         tmp_completed.push_back(pc);                        
                     }
 
-                    // Slice off non-intersecting bits from c1 on the x-axis
+                    // Slice off non-intersecting bits from c1 on the Z-axis
                     // Sliced bits go to pending_cubes to be re-checked
                     let (z_left, z_right) = c1.zrange.subtract(&c0.zrange);
                     if let Some(r) = z_left {
                         let pc = c1.clone_and_set_zrange(&r);
                         println!("  sliced off from new {}", &pc);
-                        pending_cubes.push_back(pc);
+                        pending_cubes.push_front(pc);
                     }
 
                     if let Some(r) = z_right {
                         let pc = c1.clone_and_set_zrange(&r);
-                        println!("  sliced off from new {}", &pc);
-                        pending_cubes.push_back(pc);
+                        println!("  sliced off 2 from new {}", &pc);
+                        pending_cubes.push_front(pc);
                     }
 
                     // Find remaining c2 and c3
@@ -554,31 +570,38 @@ pub fn day22_p1() {
                     println!("  Remaining c0 {}", c0);
                     println!("  Remaining c1 {}", c1);
 
-                    if c0 == c1 {
-                        println!("c0 == c1!!!");
-                    } else {
-                        panic!("c0 != c1!!!");
+                    if (c1.cubetype == CubeType::On) {
+                        tmp_completed.push_back(c0);
                     }
-
-                    // Need to remove cube from completed list.
-                    //completed_cubes.remove(c);
-                    panic!("xxx");
-                    continue 'a;
+                    // If it's "Off", c0 and c1 cancel so nothing to add
+                    break;
                 }
             }
 
-            println!("Adding non-intersecting cube {}", c1);
-            completed_cubes.insert(c1);
-
-            //for x in tmp_completed {
-            //    completed_cubes.insert(x);
-            //}
+            if !intersects {
+                if c1.cubetype == CubeType::On {
+                    println!("Adding non-intersecting cube {}", c1);
+                    completed_cubes.insert(c1);
+                } else {
+                    println!("Skipping non-intersecting OFF cube {}", c1);
+                }
+            } else {
+                completed_cubes.remove(&c);
+                for cube in tmp_completed {
+                    completed_cubes.insert(cube);
+                }
+            }
         }
 
         println!("{} cubes", completed_cubes.len());
 
-        let mut vol: i64 = 0;
+        let mut vol: u64 = 0;
         for c in completed_cubes {
+            //dbg!(&c);
+            //dbg!(&c.volume());
+            if c.cubetype == CubeType::Off {
+                panic!("Off cube???");
+            }
             vol += c.volume();
         }
         println!("Total volume: {}", vol);
