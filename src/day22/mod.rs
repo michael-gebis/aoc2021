@@ -434,73 +434,141 @@ pub fn day22_p1() {
         }
 
         let mut completed_cubes: HashSet<Cube> = HashSet::new();
-        let mut tmp_cube: Cube;
+        let mut c1: Cube;
 
         'a: while !pending_cubes.is_empty() {
-            tmp_cube = pending_cubes.pop_front().unwrap();
-            //let mut tmp_completed: VecDeque<Cube> = VecDeque::new();
+            c1 = pending_cubes.pop_front().unwrap();
+            let mut tmp_completed: VecDeque<Cube> = VecDeque::new();
             for c in completed_cubes.iter() {
-                if tmp_cube.check_intersect(&c) {
+                let c0 = c.clone();
+                if c1.check_intersect(&c0) {
                     println!("Adding intersecting cube");
-                    println!("  new cube {}", &tmp_cube);
-                    println!("  existing {}", &c);
-                    // Slice off non-intersecting bits on the x-axis:
-                    let (x_left, x_right) = c.xrange.subtract(&tmp_cube.xrange);
+                    println!("  new cube {}", &c1);
+                    println!("  existing {}", &c0);
 
-                    match x_left {
-                        Some(r) => {
-                            let pc = c.clone_and_set_xrange(&r);
-                            println!("  sliced off from existing {}", &pc);
-                            pending_cubes.push_back(pc);
-                        }
-                        _ => (),
+                    // Slice off non-intersecting bits from c0 on the x-axis:
+                    // Sliced bits go to tmp_completed
+                    let (x_left, x_right) = c0.xrange.subtract(&c1.xrange);
+                    if let Some(r) = x_left {
+                        let pc = c0.clone_and_set_xrange(&r);
+                        println!("  sliced off from existing {}", &pc);
+                        tmp_completed.push_back(pc);
+                    }
+                    if let Some(r) = x_right {
+                        let pc = c0.clone_and_set_xrange(&r);
+                        println!("  sliced off from existing {}", &pc);
+                        tmp_completed.push_back(pc);                        
                     }
 
-                    match x_right {
-                        Some(r) => {
-                            let pc = c.clone_and_set_xrange(&r);
-                            println!("  sliced off from existing {}", &pc);
-                            pending_cubes.push_back(pc);
-                        }
-                        _ => (),
+                    // Slice off non-intersecting bits from c1 on the x-axis
+                    // Sliced bits go to pending_cubes to be re-checked
+                    let (x_left, x_right) = c1.xrange.subtract(&c0.xrange);
+                    if let Some(r) = x_left {
+                        let pc = c1.clone_and_set_xrange(&r);
+                        println!("  sliced off from new {}", &pc);
+                        pending_cubes.push_back(pc);
                     }
 
-                    let (x_left, x_right) = tmp_cube.xrange.subtract(&c.xrange);
-                    match x_left {
-                        Some(r) => {
-                            let pc = tmp_cube.clone_and_set_xrange(&r);
-                            println!("  sliced off from new {}", &pc);
-                            pending_cubes.push_back(pc);
-                        }
-                        _ => (),
+                    if let Some(r) = x_right {
+                        let pc = c1.clone_and_set_xrange(&r);
+                        println!("  sliced off from new {}", &pc);
+                        pending_cubes.push_back(pc);
                     }
 
-                    match x_right {
-                        Some(r) => {
-                            let pc = tmp_cube.clone_and_set_xrange(&r);
-                            println!("  sliced off from new {}", &pc);
-                            pending_cubes.push_back(pc);
-                        }
-                        _ => (),
+                    // Find remaining c2 and c3
+                    let r = c0.xrange.intersect(&c1.xrange).unwrap();
+                    let c0 = c0.clone_and_set_xrange(&r); 
+                    let c1 = c1.clone_and_set_xrange(&r);
+                    println!("  Remaining c0 {}", c0);
+                    println!("  Remaining c1 {}", c1);
+
+                    // Slice off non-intersecting bits from c0 on the Y-axis:
+                    // Sliced bits go to tmp_completed
+                    let (y_left, y_right) = c0.yrange.subtract(&c1.yrange);
+                    if let Some(r) = y_left {
+                        let pc = c0.clone_and_set_yrange(&r);
+                        println!("  sliced off from existing {}", &pc);
+                        tmp_completed.push_back(pc);
+                    }
+                    if let Some(r) = y_right {
+                        let pc = c0.clone_and_set_yrange(&r);
+                        println!("  sliced off from existing {}", &pc);
+                        tmp_completed.push_back(pc);                        
                     }
 
-                    let r = c.xrange.intersect(&tmp_cube.xrange).unwrap();
-                    let c2 = c.clone_and_set_xrange(&r); 
-                    let c3 = tmp_cube.clone_and_set_xrange(&r);
-                    println!("  Remaining c2 {}", c2);
-                    println!("  Remaining c3 {}", c3);
+                    // Slice off non-intersecting bits from c1 on the x-axis
+                    // Sliced bits go to pending_cubes to be re-checked
+                    let (y_left, y_right) = c1.yrange.subtract(&c0.yrange);
+                    if let Some(r) = y_left {
+                        let pc = c1.clone_and_set_yrange(&r);
+                        println!("  sliced off from new {}", &pc);
+                        pending_cubes.push_back(pc);
+                    }
 
-                    // Slice in Y direction
-                    // Slice in Z direction
+                    if let Some(r) = y_right {
+                        let pc = c1.clone_and_set_yrange(&r);
+                        println!("  sliced off from new {}", &pc);
+                        pending_cubes.push_back(pc);
+                    }
 
+                    // Find remaining c2 and c3
+                    let r = c0.yrange.intersect(&c1.yrange).unwrap();
+                    let c0 = c0.clone_and_set_yrange(&r); 
+                    let c1 = c1.clone_and_set_yrange(&r);
+                    println!("  Remaining c0 {}", c0);
+                    println!("  Remaining c1 {}", c1);
 
+                    // Slice off non-intersecting bits from c0 on the Z-axis:
+                    // Sliced bits go to tmp_completed
+                    let (z_left, z_right) = c0.zrange.subtract(&c1.zrange);
+                    if let Some(r) = z_left {
+                        let pc = c0.clone_and_set_zrange(&r);
+                        println!("  sliced off from existing {}", &pc);
+                        tmp_completed.push_back(pc);
+                    }
+                    if let Some(r) = z_right {
+                        let pc = c0.clone_and_set_zrange(&r);
+                        println!("  sliced off from existing {}", &pc);
+                        tmp_completed.push_back(pc);                        
+                    }
+
+                    // Slice off non-intersecting bits from c1 on the x-axis
+                    // Sliced bits go to pending_cubes to be re-checked
+                    let (z_left, z_right) = c1.zrange.subtract(&c0.zrange);
+                    if let Some(r) = z_left {
+                        let pc = c1.clone_and_set_zrange(&r);
+                        println!("  sliced off from new {}", &pc);
+                        pending_cubes.push_back(pc);
+                    }
+
+                    if let Some(r) = z_right {
+                        let pc = c1.clone_and_set_zrange(&r);
+                        println!("  sliced off from new {}", &pc);
+                        pending_cubes.push_back(pc);
+                    }
+
+                    // Find remaining c2 and c3
+                    let r = c0.zrange.intersect(&c1.zrange).unwrap();
+                    let c0 = c0.clone_and_set_zrange(&r); 
+                    let c1 = c1.clone_and_set_zrange(&r);
+                    println!("  Remaining c0 {}", c0);
+                    println!("  Remaining c1 {}", c1);
+
+                    if c0 == c1 {
+                        println!("c0 == c1!!!");
+                    } else {
+                        panic!("c0 != c1!!!");
+                    }
+
+                    // Need to remove cube from completed list.
+                    //completed_cubes.remove(c);
                     panic!("xxx");
                     continue 'a;
                 }
             }
 
-            println!("Adding non-intersecting cube {}", tmp_cube);
-            completed_cubes.insert(tmp_cube);
+            println!("Adding non-intersecting cube {}", c1);
+            completed_cubes.insert(c1);
 
             //for x in tmp_completed {
             //    completed_cubes.insert(x);
