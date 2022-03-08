@@ -6,8 +6,8 @@ use std::collections::VecDeque;
 use std::fmt;
 use std::mem;
 
-const FILENAME: &str = "src/day23/day23_example.txt";
-//const FILENAME: &str = "src/day23/day23_input.txt";
+//const FILENAME: &str = "src/day23/day23_example.txt";
+const FILENAME: &str = "src/day23/day23_input.txt";
 
 // General strategery:
 // Create a list of "boards yet to be evaluated"
@@ -80,54 +80,82 @@ impl BState {
 }
 
 const HALLSIZE: usize = 7;
-const BOARDSIZE: usize = HALLSIZE + 2 * 4;
+const MAX_ROOM_SIZE: usize = 4;
+const NUM_ROOMS: usize = 4;
+const BOARDSIZE: usize = HALLSIZE + MAX_ROOM_SIZE * NUM_ROOMS;
 
 struct BoardIter {
     board: Board,
-    pos: usize,
-    n: usize,
+    srcpos: usize,
+    tarpos: usize,
 }
 
 impl BoardIter {
     fn new(board: &Board) -> BoardIter {
         BoardIter {
             board: board.clone(),
-            pos: 0,
-            n: 0,
+            srcpos: 0,
+            tarpos: 0,
         }
     }
 }
 
 /*
+Roomsize = 2
 #############
 #01.2.3.4.56#
 ###7#8#9#A###
   #B#C#D#E#
+  #########
+
+Roomsize = 4
+#############
+#01.2.3.4.56#
+###7#B#F#3###
+  #8#C#0#4#  
+  #9#D#1#5#
+  #A#E#2#6#  
   #########
 */
 
 impl Iterator for BoardIter {
     type Item = Board;
     fn next(&mut self) -> Option<Self::Item> {
-        //println!("next: pos={}, n={}", self.pos, self.n);
-        let paths: Vec<Vec<i32>> = vec![
-            vec![0, 1, -1, 7, 8],
-            vec![0, 1, -1, 2, -1, 9, 10],
-            vec![0, 1, -1, 2, -1, 3, -1, 11, 12],
-            vec![0, 1, -1, 2, -1, 3, -1, 4, -1, 13, 14],
-            vec![6, 5, -1, 4, -1, 3, -1, 2, -1, 7, 8],
-            vec![6, 5, -1, 4, -1, 3, -1, 9, 10],
-            vec![6, 5, -1, 4, -1, 11, 12],
+        //println!("next: srcpos={}, n={}", self.srcpos, self.tarpos);
+        let paths2: Vec<Vec<i32>> = vec![
+            vec![0, 1, -1,  7,  8],
+            vec![0, 1, -1,  2, -1,  9, 10],
+            vec![0, 1, -1,  2, -1,  3, -1, 11, 12],
+            vec![0, 1, -1,  2, -1,  3, -1,  4, -1, 13, 14],
+            vec![6, 5, -1,  4, -1,  3, -1,  2, -1,  7,  8],
+            vec![6, 5, -1,  4, -1,  3, -1,  9, 10],
+            vec![6, 5, -1,  4, -1, 11, 12],
             vec![6, 5, -1, 13, 14],
         ];
 
-        for src in self.pos..BOARDSIZE {
+        let paths4:  Vec<Vec<i32>> = vec![
+            vec![0, 1, -1, 7,  8,  9, 10],
+            vec![0, 1, -1, 2, -1, 11, 12, 13, 14 ],
+            vec![0, 1, -1, 2, -1,  3, -1, 15, 16, 17, 18],
+            vec![0, 1, -1, 2, -1,  3, -1,  4, -1, 19, 20, 21, 22],
+            vec![6, 5, -1, 4, -1,  3, -1,  2, -1, 19, 20, 21, 22],
+            vec![6, 5, -1, 4, -1,  3, -1, 15, 16, 17, 18],
+            vec![6, 5, -1, 4, -1, 11, 12, 13, 14],
+            vec![6, 5, -1, 7,  8,  9, 10],
+        ];
+
+
+        for src in self.srcpos..BOARDSIZE {
             if self.board.spaces[src] == BState::Empty {
                 continue;
             }
 
             // If the piece is already in the right place, don't move it
-            match self.board.spaces[src] {
+            if self.board.piece_is_home(src) {
+                continue;
+            }
+    
+            /*match self.board.spaces[src] {
                 BState::A => {
                     if src == 8 {
                         continue;
@@ -160,29 +188,23 @@ impl Iterator for BoardIter {
                         continue;
                     }
                 }
+                // If src is empty, nothing to do here.
                 _ => {
                     continue;
                 }
             }
+            */
 
-            'tarloop: for tar in self.n..BOARDSIZE {
-                //self.n = tar;
-
+            'tarloop: for tar in self.tarpos..BOARDSIZE {
                 if self.board.spaces[tar] != BState::Empty {
                     continue;
                 }
-                //if tar == src {
-                //println!("tar==src");
-                //    continue;
-                //}
                 // both in hallway
                 if src < 7 && tar < 7 {
-                    //println!("both hall");
                     continue;
                 }
                 // both in rooms
                 if src >= 7 && tar >= 7 {
-                    //println!("both room");
                     continue;
                 }
 
@@ -231,7 +253,7 @@ impl Iterator for BoardIter {
 
                 let mut a: usize = 0;
                 let mut b: usize = 0;
-                for p in paths.iter() {
+                for p in paths2.iter() {
                     if p.contains(&(src as i32)) && p.contains(&(tar as i32)) {
                         a = p.iter().position(|x| (*x) as usize == src).unwrap();
                         b = p.iter().position(|x| (*x) as usize == tar).unwrap();
@@ -258,24 +280,24 @@ impl Iterator for BoardIter {
                 newboard.spaces[tar] = self.board.spaces[src];
 
                 match self.board.spaces[src] {
-                    BState::A => newboard.cost += 1 * moves as i64,
-                    BState::B => newboard.cost += 10 * moves as i64,
-                    BState::C => newboard.cost += 100 * moves as i64,
-                    BState::D => newboard.cost += 1000 * moves as i64,
+                    BState::A => newboard.cost += 1 * moves as i32,
+                    BState::B => newboard.cost += 10 * moves as i32,
+                    BState::C => newboard.cost += 100 * moves as i32,
+                    BState::D => newboard.cost += 1000 * moves as i32,
                     _ => panic!("Unknown state"),
                 }
                 //println!("newboard, cost={}", newboard.cost);
-                self.pos = src;
-                self.n = tar + 1;
-                if self.n >= BOARDSIZE {
-                    self.pos += 1;
-                    self.n = 0;
-                    //println!("self.pos={}, self.n={}", self.pos, self.n);
+                self.srcpos = src;
+                self.tarpos = tar + 1;
+                if self.tarpos >= BOARDSIZE {
+                    self.srcpos += 1;
+                    self.tarpos = 0;
+                    //println!("self.srcpos={}, self.tarpos={}", self.srcpos, self.tarpos);
                 }
                 //println!("newboard=\n{}", newboard);
                 return Some(newboard);
             }
-            self.n = 0;
+            self.tarpos = 0;
         }
         None
     }
@@ -284,7 +306,8 @@ impl Iterator for BoardIter {
 #[derive(Clone, Hash, Eq, PartialEq)]
 struct Board {
     spaces: [BState; BOARDSIZE],
-    cost: i64,
+    cost: i32,
+    roomsize: usize,
 }
 
 impl Board {
@@ -292,6 +315,7 @@ impl Board {
         Board {
             spaces: [BState::Empty; BOARDSIZE],
             cost: 0,
+            roomsize: 2,
         }
     }
 
@@ -303,29 +327,62 @@ impl Board {
     }
 
     fn get_room(&self, rtype: RoomType, pos: usize) -> BState {
-        if pos >= 2 {
+        if pos >= self.roomsize {
             panic!("Illegal pos {}", pos);
         }
 
         match rtype {
-            RoomType::A => self.spaces[HALLSIZE + pos],
-            RoomType::B => self.spaces[HALLSIZE + 2 + pos],
-            RoomType::C => self.spaces[HALLSIZE + 4 + pos],
-            RoomType::D => self.spaces[HALLSIZE + 6 + pos],
+            RoomType::A => self.spaces[HALLSIZE + self.roomsize*0 + pos],
+            RoomType::B => self.spaces[HALLSIZE + self.roomsize*1 + pos],
+            RoomType::C => self.spaces[HALLSIZE + self.roomsize*2 + pos],
+            RoomType::D => self.spaces[HALLSIZE + self.roomsize*3 + pos],
         }
     }
 
     fn set_room(&mut self, rtype: RoomType, pos: usize, state: BState) {
-        if pos >= 2 {
+        if pos >= self.roomsize {
             panic!("Illegal pos {}", pos);
         }
 
         match rtype {
-            RoomType::A => self.spaces[HALLSIZE + pos] = state,
-            RoomType::B => self.spaces[HALLSIZE + 2 + pos] = state,
-            RoomType::C => self.spaces[HALLSIZE + 4 + pos] = state,
-            RoomType::D => self.spaces[HALLSIZE + 6 + pos] = state,
+            RoomType::A => self.spaces[HALLSIZE + self.roomsize*0 + pos] = state,
+            RoomType::B => self.spaces[HALLSIZE + self.roomsize*1 + pos] = state,
+            RoomType::C => self.spaces[HALLSIZE + self.roomsize*2 + pos] = state,
+            RoomType::D => self.spaces[HALLSIZE + self.roomsize*3 + pos] = state,
         }
+    }
+
+    fn piece_is_home(&self, src: usize) -> bool {
+        if src < HALLSIZE {
+            return false;
+        }
+        let p = src - HALLSIZE;
+        let offset = p % self.roomsize;
+        let room_type = 
+            match p / self.roomsize {
+                0 => BState::A,
+                1 => BState::B,
+                2 => BState::C,
+                3 => BState::D,
+                _ => panic!("unknown state")
+        };
+
+        // Is the piece in the right room?
+        if self.spaces[src] != room_type {
+            return false;
+        }
+        //println!("srcpos={} p={} offset={}", srcpos, p, offset);
+  
+        // Are the other deeper pieces also in the right room?
+        for i in (offset+1) .. self.roomsize {
+            //println!("i={}, target_state={}", i, target_state);
+            if self.spaces[p+i+HALLSIZE] != room_type {
+                //println!("False");
+                return false;
+            }
+        }
+        //println!("True");
+        return true;
     }
 
     fn is_done(&self) -> bool {
@@ -387,8 +444,8 @@ impl fmt::Display for Board {
 fn solution_search(orig_board: &Board) -> i64 {
     //let board = orig_board.clone();
     //println!("HeyHey2");
-    let mut best = i64::MAX;
-    let mut count: i64 = 0;
+    let mut best = i32::MAX;
+    let mut count: i32 = 0;
 
     let mut todo: VecDeque<Board> = VecDeque::new();
     let mut cache: HashSet<Board> = HashSet::new();
@@ -402,13 +459,12 @@ fn solution_search(orig_board: &Board) -> i64 {
         //println!("{}", b);
         //println!("");
 
-        let mut nb_count = 0;
+        //let mut nb_count = 0;
         for nb in BoardIter::new(&b) {
-            nb_count += 1;
+            //nb_count += 1;
             if nb.cost > best {
                 continue;
             }
-
 
             if nb.is_done() {
                 println!("Solution found!  Cost = {}", nb.cost);
@@ -417,19 +473,17 @@ fn solution_search(orig_board: &Board) -> i64 {
                 }
                 continue;
             }
-            let mut nb2 = nb.clone();
-            //nb2.cost = 0;
 
-            if cache.contains(&nb2) {
-                //println!("Cache hit!!!");
+            if cache.contains(&nb) {
                 continue;
             }
 
-            cache.insert(nb2);
+            cache.insert(nb.clone());
             todo.push_back(nb);
         }
         //println!("nb_count={}", nb_count);
     }
+    println!("Cache size = {}", cache.len());
     println!("Best = {}", best);
 
     0
