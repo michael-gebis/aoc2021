@@ -82,7 +82,7 @@ impl BState {
 const HALLSIZE: usize = 7;
 const MAX_ROOM_SIZE: usize = 4;
 const NUM_ROOMS: usize = 4;
-const BOARDSIZE: usize = HALLSIZE + MAX_ROOM_SIZE * NUM_ROOMS;
+const MAX_BOARDSIZE: usize = HALLSIZE + MAX_ROOM_SIZE * NUM_ROOMS;
 
 struct BoardIter {
     board: Board,
@@ -144,8 +144,9 @@ impl Iterator for BoardIter {
             vec![6, 5, -1, 7,  8,  9, 10],
         ];
 
+        let boardsize = HALLSIZE + NUM_ROOMS * self.board.roomsize;
 
-        for src in self.srcpos..BOARDSIZE {
+        for src in self.srcpos..boardsize {
             if self.board.spaces[src] == BState::Empty {
                 continue;
             }
@@ -195,7 +196,7 @@ impl Iterator for BoardIter {
             }
             */
 
-            'tarloop: for tar in self.tarpos..BOARDSIZE {
+            'tarloop: for tar in self.tarpos..boardsize {
                 if self.board.spaces[tar] != BState::Empty {
                     continue;
                 }
@@ -211,6 +212,7 @@ impl Iterator for BoardIter {
                 //println!("src={} tar={}", src,tar);
                 // Only allow hallway pieces to move into the correct room.
                 if tar >= 7 {
+                    /*
                     match self.board.spaces[src] {
                         BState::A => {
                             if tar != 7 && tar != 8 {
@@ -245,6 +247,10 @@ impl Iterator for BoardIter {
                             }
                         }
                         _ => panic!("Impossible state"),
+                    }
+                    */
+                    if !self.board.piece_may_enter_room(src,tar) {
+                        continue;
                     }
                 }
                 //let moves:usize = 0;
@@ -289,7 +295,7 @@ impl Iterator for BoardIter {
                 //println!("newboard, cost={}", newboard.cost);
                 self.srcpos = src;
                 self.tarpos = tar + 1;
-                if self.tarpos >= BOARDSIZE {
+                if self.tarpos >= boardsize {
                     self.srcpos += 1;
                     self.tarpos = 0;
                     //println!("self.srcpos={}, self.tarpos={}", self.srcpos, self.tarpos);
@@ -305,7 +311,7 @@ impl Iterator for BoardIter {
 
 #[derive(Clone, Hash, Eq, PartialEq)]
 struct Board {
-    spaces: [BState; BOARDSIZE],
+    spaces: [BState; MAX_BOARDSIZE],
     cost: i32,
     roomsize: usize,
 }
@@ -313,7 +319,7 @@ struct Board {
 impl Board {
     fn new() -> Board {
         Board {
-            spaces: [BState::Empty; BOARDSIZE],
+            spaces: [BState::Empty; MAX_BOARDSIZE],
             cost: 0,
             roomsize: 2,
         }
@@ -350,6 +356,55 @@ impl Board {
             RoomType::C => self.spaces[HALLSIZE + self.roomsize*2 + pos] = state,
             RoomType::D => self.spaces[HALLSIZE + self.roomsize*3 + pos] = state,
         }
+    }
+
+    fn piece_may_enter_room(&self, src:usize, tar:usize) -> bool {
+        // piece is already in room
+        if src >= HALLSIZE {
+            return false;
+        }
+
+        // target is not a room
+        if tar < HALLSIZE {
+            panic!("Only supposed to call if target is known to be a room");
+        }
+
+        let p = tar - HALLSIZE;
+        let offset = p % self.roomsize;
+        
+        let room_type = 
+            match p / self.roomsize {
+                0 => BState::A,
+                1 => BState::B,
+                2 => BState::C,
+                3 => BState::D,
+                _ => panic!("unknown state")
+        };
+        //println!("src={} tar={} p={} offset={} room_type={}", src,tar,p,offset, room_type);
+        //println!("{}", self);
+        // Is the piece targeting the right room?
+        if self.spaces[src] != room_type {
+            //println!("target not correct");
+            return false;
+        }
+
+        // Make sure walkway and target space is empty
+        for i in 0..(offset) {
+            if self.spaces[i+p+HALLSIZE] != BState::Empty {
+                //println!("walkway not empty: {}", i+p+HALLSIZE);
+                return false;
+            }
+        }
+        // Make sure rest of room is settled
+        for i in offset+1..self.roomsize {
+            if self.spaces[i+p+HALLSIZE] != room_type {
+                //println!("room not settled: {}", i+p+HALLSIZE);
+                return false;
+            }
+        }
+
+        //println!("coolio");
+        return true;
     }
 
     fn piece_is_home(&self, src: usize) -> bool {
