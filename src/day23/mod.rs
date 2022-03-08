@@ -274,67 +274,6 @@ impl Iterator for BoardIter {
                 }
                 //println!("newboard=\n{}", newboard);
                 return Some(newboard);
-
-                /*
-                match board.spaces[i] {
-                    BState::A => {
-                        // Piece in hallway must target Room A
-                        if src < 7 && tar != 7 && tar != 11 {
-                            next;
-                        }
-                        // Piece in any room must target hallway.
-                        if src >= 7 && tar >= 7 {
-                            next;
-                        }
-
-                        // Hallway -> Room
-                        if src < 7 {
-                            if board.spaces[7] != BState::Empty {
-                                next;
-                            }
-                            if tar == 7 && board.spaces[11] != BState::A {
-                                next;
-                            }
-                            if src <= 1 {
-                                for k in src..1 {
-                                    if board.spaces[k] != BState::Empty {
-                                        next;
-                                    }
-                                    moves += 1;
-                                }
-                                moves +=1;
-                            } else {
-                                for k in (2..src+1).rev() {
-                                    if board.spaces[k] != BState::Empty {
-                                        next;
-                                    }
-                                    moves += 1;
-                                }
-                                moves +=1;
-                            }
-                            if tar == 7 { moves +=1;} else { moves +=2;}
-                        } else {
-                            if src == 7 {}
-                        }
-
-                    },
-                    BState::B => {
-                        if src < 7 && tar != 8 && tar != 12 {
-                            next;
-                        }
-                    }
-                    BState::C => {
-                        if src < 7 && tar != 9 && tar != 13 {
-                            next;
-                        }
-                    }
-                    BState::D => {
-                        if src < 7 && tar != 10 && tar != 14 {
-                            next;
-                        }
-                    }
-                }
-                */
             }
             self.n = 0;
         }
