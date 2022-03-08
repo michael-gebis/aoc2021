@@ -7,7 +7,9 @@ use std::fmt;
 use std::mem;
 
 //const FILENAME: &str = "src/day23/day23_example.txt";
-const FILENAME: &str = "src/day23/day23_input.txt";
+//const FILENAME: &str = "src/day23/day23_input.txt";
+//const FILENAME: &str = "src/day23/day23_example_big.txt";
+const FILENAME: &str = "src/day23/day23_input_big.txt";
 
 // General strategery:
 // Create a list of "boards yet to be evaluated"
@@ -138,11 +140,18 @@ impl Iterator for BoardIter {
             vec![0, 1, -1, 2, -1, 11, 12, 13, 14 ],
             vec![0, 1, -1, 2, -1,  3, -1, 15, 16, 17, 18],
             vec![0, 1, -1, 2, -1,  3, -1,  4, -1, 19, 20, 21, 22],
-            vec![6, 5, -1, 4, -1,  3, -1,  2, -1, 19, 20, 21, 22],
-            vec![6, 5, -1, 4, -1,  3, -1, 15, 16, 17, 18],
-            vec![6, 5, -1, 4, -1, 11, 12, 13, 14],
-            vec![6, 5, -1, 7,  8,  9, 10],
+            vec![6, 5, -1, 4, -1,  3, -1,  2, -1, 7, 8, 9, 10],
+            vec![6, 5, -1, 4, -1,  3, -1, 11, 12, 13, 14],
+            vec![6, 5, -1, 4, -1, 15, 16, 17, 18],
+            vec![6, 5, -1, 19, 20,21, 22],
         ];
+
+        let paths:Vec<Vec<i32>>;
+        match self.board.roomsize {
+            2 => paths = paths2,
+            4 => paths = paths4,
+            _ => panic!("Unknown roomsize"),
+        }        
 
         let boardsize = HALLSIZE + NUM_ROOMS * self.board.roomsize;
 
@@ -259,7 +268,8 @@ impl Iterator for BoardIter {
 
                 let mut a: usize = 0;
                 let mut b: usize = 0;
-                for p in paths2.iter() {
+
+                for p in paths.iter() {
                     if p.contains(&(src as i32)) && p.contains(&(tar as i32)) {
                         a = p.iter().position(|x| (*x) as usize == src).unwrap();
                         b = p.iter().position(|x| (*x) as usize == tar).unwrap();
@@ -388,16 +398,22 @@ impl Board {
             return false;
         }
 
+        let room_start = (p/self.roomsize) * self.roomsize + HALLSIZE;
+
         // Make sure walkway and target space is empty
         for i in 0..(offset) {
-            if self.spaces[i+p+HALLSIZE] != BState::Empty {
+            if self.spaces[i+room_start] != BState::Empty {
                 //println!("walkway not empty: {}", i+p+HALLSIZE);
                 return false;
             }
         }
         // Make sure rest of room is settled
         for i in offset+1..self.roomsize {
-            if self.spaces[i+p+HALLSIZE] != room_type {
+            if i+room_start > 23 {
+                println!("src:{} tar:{} i:{} p:{} HALLSIZE:{} offset:{} self.roomsize:{}",
+                    src,tar,i,p,HALLSIZE,offset,self.roomsize);
+            }
+            if self.spaces[i+room_start] != room_type {
                 //println!("room not settled: {}", i+p+HALLSIZE);
                 return false;
             }
@@ -428,10 +444,12 @@ impl Board {
         }
         //println!("srcpos={} p={} offset={}", srcpos, p, offset);
   
+        let room_start = (p/self.roomsize) * self.roomsize + HALLSIZE;
+
         // Are the other deeper pieces also in the right room?
         for i in (offset+1) .. self.roomsize {
             //println!("i={}, target_state={}", i, target_state);
-            if self.spaces[p+i+HALLSIZE] != room_type {
+            if self.spaces[i+room_start] != room_type {
                 //println!("False");
                 return false;
             }
@@ -446,6 +464,21 @@ impl Board {
                 return false;
             }
         }
+
+        for i in 0 .. self.roomsize * NUM_ROOMS {
+            let room_type = 
+                match i / self.roomsize {
+                    0 => BState::A,
+                    1 => BState::B,
+                    2 => BState::C,
+                    3 => BState::D,
+                    _ => panic!("unknown state")
+            };
+            if self.spaces[HALLSIZE+i] != room_type {
+                return false;
+            }
+        }
+/*
         if self.get_room(RoomType::A, 0) != BState::A
             || self.get_room(RoomType::A, 1) != BState::A
             || self.get_room(RoomType::B, 0) != BState::B
@@ -457,6 +490,8 @@ impl Board {
         {
             return false;
         }
+*/
+        println!("{}",self);
         true
     }
 }
@@ -483,14 +518,16 @@ impl fmt::Display for Board {
             self.get_room(RoomType::C, 0),
             self.get_room(RoomType::D, 0)
         )?;
-        writeln!(
-            f,
-            "  #{}#{}#{}#{}#",
-            self.get_room(RoomType::A, 1),
-            self.get_room(RoomType::B, 1),
-            self.get_room(RoomType::C, 1),
-            self.get_room(RoomType::D, 1)
-        )?;
+        for i in 1..self.roomsize {
+            writeln!(
+                f,
+                "  #{}#{}#{}#{}#",
+                self.get_room(RoomType::A, i),
+                self.get_room(RoomType::B, i),
+                self.get_room(RoomType::C, i),
+                self.get_room(RoomType::D, i)
+            )?;
+        }
         writeln!(f, "  #########")?;
         writeln!(f, "cost: {}", self.cost)
     }
@@ -557,11 +594,12 @@ pub fn day23_p1() {
         let re_line0 = Regex::new(r"^#############$").unwrap();
         let re_line1 = Regex::new(r"^#\.\.\.\.\.\.\.\.\.\.\.#$").unwrap();
         let re_line2 = Regex::new(r"^###([A-D])#([A-D])#([A-D])#([A-D])###$").unwrap();
-        let re_line3 = Regex::new(r"^  #([A-D])#([A-D])#([A-D])#([A-D])#$").unwrap();
+        let re_line3plus = Regex::new(r"^  #([A-D])#([A-D])#([A-D])#([A-D])#$").unwrap();
         let re_line4 = Regex::new(r"^  #########$").unwrap();
 
         let mut board = Board::new();
-
+        board.roomsize = 4;
+        let mut roomsize = 0;
         for line in lines {
             if let Ok(ip) = line {
                 if let Some(cap) = re_line0.captures(&ip) {
@@ -574,12 +612,14 @@ pub fn day23_p1() {
                     board.set_room(RoomType::B, 0, BState::new(&cap[2]));
                     board.set_room(RoomType::C, 0, BState::new(&cap[3]));
                     board.set_room(RoomType::D, 0, BState::new(&cap[4]));
-                } else if let Some(cap) = re_line3.captures(&ip) {
+                    roomsize += 1;
+                } else if let Some(cap) = re_line3plus.captures(&ip) {
                     //println!("line3");
-                    board.set_room(RoomType::A, 1, BState::new(&cap[1]));
-                    board.set_room(RoomType::B, 1, BState::new(&cap[2]));
-                    board.set_room(RoomType::C, 1, BState::new(&cap[3]));
-                    board.set_room(RoomType::D, 1, BState::new(&cap[4]));
+                    board.set_room(RoomType::A, roomsize, BState::new(&cap[1]));
+                    board.set_room(RoomType::B, roomsize, BState::new(&cap[2]));
+                    board.set_room(RoomType::C, roomsize, BState::new(&cap[3]));
+                    board.set_room(RoomType::D, roomsize, BState::new(&cap[4]));
+                    roomsize += 1;
                 } else if let Some(cap) = re_line4.captures(&ip) {
                     // nothing
                 } else {
@@ -587,7 +627,8 @@ pub fn day23_p1() {
                 }
             }
         }
-        //println!("{}", board);
+        board.roomsize = roomsize;
+        println!("{}", board);
         solution_search(&board);
     } else {
         panic!("Couldn't open file {}", FILENAME);
