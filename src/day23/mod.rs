@@ -1,6 +1,5 @@
 use crate::*;
 use regex::Regex;
-//use std::collections::HashMap;
 use std::collections::HashSet;
 use std::collections::VecDeque;
 use std::fmt;
@@ -164,46 +163,6 @@ impl Iterator for BoardIter {
             if self.board.piece_is_home(src) {
                 continue;
             }
-    
-            /*match self.board.spaces[src] {
-                BState::A => {
-                    if src == 8 {
-                        continue;
-                    }
-                    if src == 7 && self.board.spaces[8] == BState::A {
-                        continue;
-                    }
-                }
-                BState::B => {
-                    if src == 10 {
-                        continue;
-                    }
-                    if src == 9 && self.board.spaces[10] == BState::B {
-                        continue;
-                    }
-                }
-                BState::C => {
-                    if src == 12 {
-                        continue;
-                    }
-                    if src == 11 && self.board.spaces[12] == BState::C {
-                        continue;
-                    }
-                }
-                BState::D => {
-                    if src == 14 {
-                        continue;
-                    }
-                    if src == 13 && self.board.spaces[14] == BState::D {
-                        continue;
-                    }
-                }
-                // If src is empty, nothing to do here.
-                _ => {
-                    continue;
-                }
-            }
-            */
 
             'tarloop: for tar in self.tarpos..boardsize {
                 if self.board.spaces[tar] != BState::Empty {
@@ -218,53 +177,12 @@ impl Iterator for BoardIter {
                     continue;
                 }
 
-                //println!("src={} tar={}", src,tar);
                 // Only allow hallway pieces to move into the correct room.
                 if tar >= 7 {
-                    /*
-                    match self.board.spaces[src] {
-                        BState::A => {
-                            if tar != 7 && tar != 8 {
-                                continue;
-                            }
-                            if tar == 7 && self.board.spaces[8] != self.board.spaces[src] {
-                                continue;
-                            }
-                        }
-                        BState::B => {
-                            if tar != 9 && tar != 10 {
-                                continue;
-                            }
-                            if tar == 9 && self.board.spaces[10] != self.board.spaces[src] {
-                                continue;
-                            }
-                        }
-                        BState::C => {
-                            if tar != 11 && tar != 12 {
-                                continue;
-                            }
-                            if tar == 11 && self.board.spaces[12] != self.board.spaces[src] {
-                                continue;
-                            }
-                        }
-                        BState::D => {
-                            if tar != 13 && tar != 14 {
-                                continue;
-                            }
-                            if tar == 13 && self.board.spaces[14] != self.board.spaces[src] {
-                                continue;
-                            }
-                        }
-                        _ => panic!("Impossible state"),
-                    }
-                    */
                     if !self.board.piece_may_enter_room(src,tar) {
                         continue;
                     }
                 }
-                //let moves:usize = 0;
-
-                //println!("attempting move from {} to {}", src, tar);
 
                 let mut a: usize = 0;
                 let mut b: usize = 0;
@@ -478,19 +396,7 @@ impl Board {
                 return false;
             }
         }
-/*
-        if self.get_room(RoomType::A, 0) != BState::A
-            || self.get_room(RoomType::A, 1) != BState::A
-            || self.get_room(RoomType::B, 0) != BState::B
-            || self.get_room(RoomType::B, 1) != BState::B
-            || self.get_room(RoomType::C, 0) != BState::C
-            || self.get_room(RoomType::C, 1) != BState::C
-            || self.get_room(RoomType::D, 0) != BState::D
-            || self.get_room(RoomType::D, 1) != BState::D
-        {
-            return false;
-        }
-*/
+
         println!("{}",self);
         true
     }
@@ -534,11 +440,7 @@ impl fmt::Display for Board {
 }
 
 fn solution_search(orig_board: &Board) -> i64 {
-    //let board = orig_board.clone();
-    //println!("HeyHey2");
     let mut best = i32::MAX;
-    let mut count: i32 = 0;
-
     let mut todo: VecDeque<Board> = VecDeque::new();
     let mut cache: HashSet<Board> = HashSet::new();
 
@@ -548,12 +450,8 @@ fn solution_search(orig_board: &Board) -> i64 {
     while !todo.is_empty() {
         println!("Evaluating next board on todo list, len={}", todo.len());
         let b = todo.pop_front().unwrap();
-        //println!("{}", b);
-        //println!("");
 
-        //let mut nb_count = 0;
         for nb in BoardIter::new(&b) {
-            //nb_count += 1;
             if nb.cost > best {
                 continue;
             }
@@ -573,7 +471,6 @@ fn solution_search(orig_board: &Board) -> i64 {
             cache.insert(nb.clone());
             todo.push_back(nb);
         }
-        //println!("nb_count={}", nb_count);
     }
     println!("Cache size = {}", cache.len());
     println!("Best = {}", best);
@@ -586,15 +483,11 @@ pub fn day23_p1() {
     println!("Day 23 Puzzle 1");
 
     if let Ok(lines) = util::read_lines(FILENAME) {
-        //let re_cube =
-        //    Regex::new(r"(o.+) x=(-?\d+)\.\.(-?\d+),y=(-?\d+)\.\.(-?\d+),z=(-?\d+)\.\.(-?\d+)")
-        //        .unwrap();
-        //let mut pending_cubes: VecDeque<Cube> = VecDeque::new();
 
         let re_line0 = Regex::new(r"^#############$").unwrap();
         let re_line1 = Regex::new(r"^#\.\.\.\.\.\.\.\.\.\.\.#$").unwrap();
         let re_line2 = Regex::new(r"^###([A-D])#([A-D])#([A-D])#([A-D])###$").unwrap();
-        let re_line3plus = Regex::new(r"^  #([A-D])#([A-D])#([A-D])#([A-D])#$").unwrap();
+        let re_linex = Regex::new(r"^  #([A-D])#([A-D])#([A-D])#([A-D])#$").unwrap();
         let re_line4 = Regex::new(r"^  #########$").unwrap();
 
         let mut board = Board::new();
@@ -607,14 +500,12 @@ pub fn day23_p1() {
                 } else if let Some(cap) = re_line1.captures(&ip) {
                     // nothing
                 } else if let Some(cap) = re_line2.captures(&ip) {
-                    //println!("line2");
                     board.set_room(RoomType::A, 0, BState::new(&cap[1]));
                     board.set_room(RoomType::B, 0, BState::new(&cap[2]));
                     board.set_room(RoomType::C, 0, BState::new(&cap[3]));
                     board.set_room(RoomType::D, 0, BState::new(&cap[4]));
                     roomsize += 1;
-                } else if let Some(cap) = re_line3plus.captures(&ip) {
-                    //println!("line3");
+                } else if let Some(cap) = re_linex.captures(&ip) {
                     board.set_room(RoomType::A, roomsize, BState::new(&cap[1]));
                     board.set_room(RoomType::B, roomsize, BState::new(&cap[2]));
                     board.set_room(RoomType::C, roomsize, BState::new(&cap[3]));
