@@ -563,7 +563,7 @@ pub fn day22_p1() {
                     //println!("  Remaining c0 {}", c0);
                     //println!("  Remaining c1 {}", c1);
 
-                    if (c1.cubetype == CubeType::On) {
+                    if c1.cubetype == CubeType::On {
                         tmp_completed.push_back(c0);
                     }
                     // If it's "Off", c0 and c1 cancel so nothing to add
