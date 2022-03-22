@@ -27,7 +27,6 @@ pub fn day01_p1() {
     println!("count={}", count);
 }
 
-
 #[allow(dead_code)]
 pub fn day01_p2() {
     println!("Day 1 Puzzle 2");

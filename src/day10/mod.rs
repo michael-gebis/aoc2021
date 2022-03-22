@@ -54,7 +54,7 @@ pub fn day10_p1() {
                 }
 
                 if syn_err == false {
-                    let mut comp_sum:u64 = 0;
+                    let mut comp_sum: u64 = 0;
                     while let Some(v) = mystack.pop() {
                         //println!("  v={}", v);
                         //println!("v={}, comp_sum={}", v, comp_sum);
@@ -64,7 +64,7 @@ pub fn day10_p1() {
                             "[" => 2,
                             "{" => 3,
                             "<" => 4,
-                            _ => panic!("unknwon char")
+                            _ => panic!("unknwon char"),
                         };
                     }
                     //println!("comp_sum = {}", comp_sum);
@@ -75,6 +75,9 @@ pub fn day10_p1() {
         println!("myscore={}", score);
         autocomp_scores.sort();
         //dbg!(autocomp_scores.clone());
-        println!("middle autocomp_score = {}", autocomp_scores[(autocomp_scores.len()-1)/2]);
+        println!(
+            "middle autocomp_score = {}",
+            autocomp_scores[(autocomp_scores.len() - 1) / 2]
+        );
     }
 }

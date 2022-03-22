@@ -2,16 +2,17 @@ use std::collections::HashMap;
 //use std::str::FromStr;
 use crate::*;
 
-pub fn str_is_subset(big: &String, small:&String) -> bool {
-
+pub fn str_is_subset(big: &String, small: &String) -> bool {
     //let bigc: Vec<&str> = big.split("").collect();
     //let smallc: Vec<&str> = small.split("").collect();
 
     for c in small.split("") {
         //match bigc.into_iter().find(|&x| x==c) {
-        match big.split("").find(|&x| x== c ) {
+        match big.split("").find(|&x| x == c) {
             Some(_) => (),
-            None => { return false; }
+            None => {
+                return false;
+            }
         }
     }
 
@@ -50,15 +51,30 @@ pub fn day08_p1() {
                     dbg!(x.len());
 
                     match x.len() {
-                        2 => { strtoval.insert(x.clone(), 1); valtostr[1]=x; },
-                        3 => { strtoval.insert(x.clone(), 7); valtostr[7]=x; },
-                        4 => { strtoval.insert(x.clone(), 4); valtostr[4]=x; },
-                        5 => { fives.push(x.clone()); } // should be 3 things
-                        6 => { sixes.push(x.clone()); } // should be 3 things
-                        7 => { strtoval.insert(x.clone(), 8); valtostr[8]=x; },
+                        2 => {
+                            strtoval.insert(x.clone(), 1);
+                            valtostr[1] = x;
+                        }
+                        3 => {
+                            strtoval.insert(x.clone(), 7);
+                            valtostr[7] = x;
+                        }
+                        4 => {
+                            strtoval.insert(x.clone(), 4);
+                            valtostr[4] = x;
+                        }
+                        5 => {
+                            fives.push(x.clone());
+                        } // should be 3 things
+                        6 => {
+                            sixes.push(x.clone());
+                        } // should be 3 things
+                        7 => {
+                            strtoval.insert(x.clone(), 8);
+                            valtostr[8] = x;
+                        }
                         _ => panic!("help {}", x),
                     }
-
 
                     //q.append(chars);
                 }
@@ -71,7 +87,7 @@ pub fn day08_p1() {
                     println!("checking 6 segment={:?}", s);
                     if str_is_subset(s, &valtostr[4]) {
                         strtoval.insert(s.clone(), 9);
-                        valtostr[9]=s.clone();
+                        valtostr[9] = s.clone();
                         println!("{} is a subset of {}, thus 9={}", valtostr[4], s, s);
                         break;
                     }
@@ -87,7 +103,7 @@ pub fn day08_p1() {
                     println!("checking 6 segment={:?}", s);
                     if str_is_subset(s, &valtostr[1]) {
                         strtoval.insert(s.clone(), 0);
-                        valtostr[0]=s.clone();
+                        valtostr[0] = s.clone();
                         println!("{} is a subset of {}, thus 0={}", valtostr[1], s, s);
                         break;
                     }
@@ -99,32 +115,38 @@ pub fn day08_p1() {
 
                 // Remaining six-segment is 6
                 strtoval.insert(sixes[0].clone(), 6);
-                valtostr[6]=sixes[0].clone();
+                valtostr[6] = sixes[0].clone();
                 sixes.remove(0);
 
                 // Find 3
                 for s in fives.iter() {
                     println!("checking 5 digit ={:?}", s);
-                    // The 
+                    // The
                     if str_is_subset(s, &valtostr[1]) {
                         strtoval.insert(s.clone(), 3);
-                        valtostr[3]=s.clone();
-                        println!("{:?} is a superset of {:?}, therefore 3={:?}",s, valtostr[1], s);
+                        valtostr[3] = s.clone();
+                        println!(
+                            "{:?} is a superset of {:?}, therefore 3={:?}",
+                            s, valtostr[1], s
+                        );
                         break;
                     }
                 }
                 let index = fives.iter().position(|x| *x == valtostr[3]).unwrap();
                 fives.remove(index);
                 println!("fives (after removal of 3): {:?}", fives);
-                
+
                 // Find 5
                 for s in fives.iter() {
                     println!("checking 5 digit ={:?}", s);
-                    // The 
+                    // The
                     if str_is_subset(&valtostr[6], s) {
                         strtoval.insert(s.clone(), 5);
-                        valtostr[5]=s.clone();
-                        println!("{:?} is a superset of {:?}, therefore 5={:?}",s, valtostr[1], s);
+                        valtostr[5] = s.clone();
+                        println!(
+                            "{:?} is a superset of {:?}, therefore 5={:?}",
+                            s, valtostr[1], s
+                        );
                         break;
                     }
                 }
@@ -134,7 +156,7 @@ pub fn day08_p1() {
 
                 // Remaining five-segment is 2
                 strtoval.insert(fives[0].clone(), 2);
-                valtostr[2]=fives[0].clone();
+                valtostr[2] = fives[0].clone();
                 fives.remove(0);
 
                 // Print the digits we've found.
@@ -157,14 +179,14 @@ pub fn day08_p1() {
                     output_val += strtoval[&x];
                 }
                 println!("output_val={}", output_val);
-                total+=output_val;
+                total += output_val;
                 //let mut vals: Vec<usize> = ip.split(",").map(|x| x.parse().unwrap()).collect();
             }
         }
         dbg!(counter);
         dbg!(total);
 
-        dbg!(str_is_subset(&"abcdefg".to_string(),&"ace".to_string()));
-        dbg!(str_is_subset(&"abcdefg".to_string(),&"acgh".to_string()));
+        dbg!(str_is_subset(&"abcdefg".to_string(), &"ace".to_string()));
+        dbg!(str_is_subset(&"abcdefg".to_string(), &"acgh".to_string()));
     }
 }

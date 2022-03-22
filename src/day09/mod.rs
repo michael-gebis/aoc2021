@@ -1,5 +1,5 @@
-use std::collections::HashSet;
 use crate::*;
+use std::collections::HashSet;
 
 const FILENAME: &str = "src/day09/day09_input.txt";
 //const FILENAME: &str = "src/day09/day09_example.txt";
@@ -159,5 +159,4 @@ pub fn day09_p1() {
         basins[2].clone(),
         basins.into_iter().rev().take(3).product::<i32>()
     );
-
 }

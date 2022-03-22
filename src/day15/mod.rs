@@ -169,7 +169,10 @@ pub fn day15_p1() {
             }
         }
 
-        println!("Final corner node: {:?}", board[boardsize.0-1][boardsize.1-1]);
+        println!(
+            "Final corner node: {:?}",
+            board[boardsize.0 - 1][boardsize.1 - 1]
+        );
 
     //println!("board:{:?}", board);
     } else {
@@ -219,17 +222,17 @@ pub fn day15_p2() {
         let mut bigboard: Vec<Vec<Node>> = Vec::new();
         for rowmult in 0..5 {
             for row in 0..boardsize.0 {
-                let mut new_row:Vec<Node> = Vec::new();
+                let mut new_row: Vec<Node> = Vec::new();
                 for colmult in 0..5 {
                     for col in 0..boardsize.1 {
-                        let rn = rowmult*boardsize.0 + row;
-                        let cn = colmult*boardsize.1 + col;
-                        let mut val = board[row][col].weight+ rowmult as i32+ colmult as i32;
+                        let rn = rowmult * boardsize.0 + row;
+                        let cn = colmult * boardsize.1 + col;
+                        let mut val = board[row][col].weight + rowmult as i32 + colmult as i32;
                         if val > 9 {
                             val = val - 9;
                         }
                         new_row.push(Node {
-                            p: Point(cn as i32,rn as i32),
+                            p: Point(cn as i32, rn as i32),
                             weight: val,
                             cost_so_far: Cell::new(i32::MAX),
                             came_from: Cell::new(None),
@@ -268,7 +271,10 @@ pub fn day15_p2() {
             }
         }
 
-        println!("Final corner node: {:?}", board[boardsize.0-1][boardsize.1-1]);
+        println!(
+            "Final corner node: {:?}",
+            board[boardsize.0 - 1][boardsize.1 - 1]
+        );
 
     //println!("board:{:?}", board);
     } else {

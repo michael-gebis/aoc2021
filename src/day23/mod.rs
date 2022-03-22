@@ -113,9 +113,9 @@ Roomsize = 4
 #############
 #01.2.3.4.56#
 ###7#B#F#3###
-  #8#C#0#4#  
+  #8#C#0#4#
   #9#D#1#5#
-  #A#E#2#6#  
+  #A#E#2#6#
   #########
 */
 
@@ -124,33 +124,33 @@ impl Iterator for BoardIter {
     fn next(&mut self) -> Option<Self::Item> {
         //println!("next: srcpos={}, n={}", self.srcpos, self.tarpos);
         let paths2: Vec<Vec<i32>> = vec![
-            vec![0, 1, -1,  7,  8],
-            vec![0, 1, -1,  2, -1,  9, 10],
-            vec![0, 1, -1,  2, -1,  3, -1, 11, 12],
-            vec![0, 1, -1,  2, -1,  3, -1,  4, -1, 13, 14],
-            vec![6, 5, -1,  4, -1,  3, -1,  2, -1,  7,  8],
-            vec![6, 5, -1,  4, -1,  3, -1,  9, 10],
-            vec![6, 5, -1,  4, -1, 11, 12],
+            vec![0, 1, -1, 7, 8],
+            vec![0, 1, -1, 2, -1, 9, 10],
+            vec![0, 1, -1, 2, -1, 3, -1, 11, 12],
+            vec![0, 1, -1, 2, -1, 3, -1, 4, -1, 13, 14],
+            vec![6, 5, -1, 4, -1, 3, -1, 2, -1, 7, 8],
+            vec![6, 5, -1, 4, -1, 3, -1, 9, 10],
+            vec![6, 5, -1, 4, -1, 11, 12],
             vec![6, 5, -1, 13, 14],
         ];
 
-        let paths4:  Vec<Vec<i32>> = vec![
-            vec![0, 1, -1, 7,  8,  9, 10],
-            vec![0, 1, -1, 2, -1, 11, 12, 13, 14 ],
-            vec![0, 1, -1, 2, -1,  3, -1, 15, 16, 17, 18],
-            vec![0, 1, -1, 2, -1,  3, -1,  4, -1, 19, 20, 21, 22],
-            vec![6, 5, -1, 4, -1,  3, -1,  2, -1, 7, 8, 9, 10],
-            vec![6, 5, -1, 4, -1,  3, -1, 11, 12, 13, 14],
+        let paths4: Vec<Vec<i32>> = vec![
+            vec![0, 1, -1, 7, 8, 9, 10],
+            vec![0, 1, -1, 2, -1, 11, 12, 13, 14],
+            vec![0, 1, -1, 2, -1, 3, -1, 15, 16, 17, 18],
+            vec![0, 1, -1, 2, -1, 3, -1, 4, -1, 19, 20, 21, 22],
+            vec![6, 5, -1, 4, -1, 3, -1, 2, -1, 7, 8, 9, 10],
+            vec![6, 5, -1, 4, -1, 3, -1, 11, 12, 13, 14],
             vec![6, 5, -1, 4, -1, 15, 16, 17, 18],
-            vec![6, 5, -1, 19, 20,21, 22],
+            vec![6, 5, -1, 19, 20, 21, 22],
         ];
 
-        let paths:Vec<Vec<i32>>;
+        let paths: Vec<Vec<i32>>;
         match self.board.roomsize {
             2 => paths = paths2,
             4 => paths = paths4,
             _ => panic!("Unknown roomsize"),
-        }        
+        }
 
         let boardsize = HALLSIZE + NUM_ROOMS * self.board.roomsize;
 
@@ -179,7 +179,7 @@ impl Iterator for BoardIter {
 
                 // Only allow hallway pieces to move into the correct room.
                 if tar >= 7 {
-                    if !self.board.piece_may_enter_room(src,tar) {
+                    if !self.board.piece_may_enter_room(src, tar) {
                         continue;
                     }
                 }
@@ -266,10 +266,10 @@ impl Board {
         }
 
         match rtype {
-            RoomType::A => self.spaces[HALLSIZE + self.roomsize*0 + pos],
-            RoomType::B => self.spaces[HALLSIZE + self.roomsize*1 + pos],
-            RoomType::C => self.spaces[HALLSIZE + self.roomsize*2 + pos],
-            RoomType::D => self.spaces[HALLSIZE + self.roomsize*3 + pos],
+            RoomType::A => self.spaces[HALLSIZE + self.roomsize * 0 + pos],
+            RoomType::B => self.spaces[HALLSIZE + self.roomsize * 1 + pos],
+            RoomType::C => self.spaces[HALLSIZE + self.roomsize * 2 + pos],
+            RoomType::D => self.spaces[HALLSIZE + self.roomsize * 3 + pos],
         }
     }
 
@@ -279,14 +279,14 @@ impl Board {
         }
 
         match rtype {
-            RoomType::A => self.spaces[HALLSIZE + self.roomsize*0 + pos] = state,
-            RoomType::B => self.spaces[HALLSIZE + self.roomsize*1 + pos] = state,
-            RoomType::C => self.spaces[HALLSIZE + self.roomsize*2 + pos] = state,
-            RoomType::D => self.spaces[HALLSIZE + self.roomsize*3 + pos] = state,
+            RoomType::A => self.spaces[HALLSIZE + self.roomsize * 0 + pos] = state,
+            RoomType::B => self.spaces[HALLSIZE + self.roomsize * 1 + pos] = state,
+            RoomType::C => self.spaces[HALLSIZE + self.roomsize * 2 + pos] = state,
+            RoomType::D => self.spaces[HALLSIZE + self.roomsize * 3 + pos] = state,
         }
     }
 
-    fn piece_may_enter_room(&self, src:usize, tar:usize) -> bool {
+    fn piece_may_enter_room(&self, src: usize, tar: usize) -> bool {
         // piece is already in room
         if src >= HALLSIZE {
             return false;
@@ -299,14 +299,13 @@ impl Board {
 
         let p = tar - HALLSIZE;
         let offset = p % self.roomsize;
-        
-        let room_type = 
-            match p / self.roomsize {
-                0 => BState::A,
-                1 => BState::B,
-                2 => BState::C,
-                3 => BState::D,
-                _ => panic!("unknown state")
+
+        let room_type = match p / self.roomsize {
+            0 => BState::A,
+            1 => BState::B,
+            2 => BState::C,
+            3 => BState::D,
+            _ => panic!("unknown state"),
         };
         //println!("src={} tar={} p={} offset={} room_type={}", src,tar,p,offset, room_type);
         //println!("{}", self);
@@ -316,22 +315,24 @@ impl Board {
             return false;
         }
 
-        let room_start = (p/self.roomsize) * self.roomsize + HALLSIZE;
+        let room_start = (p / self.roomsize) * self.roomsize + HALLSIZE;
 
         // Make sure walkway and target space is empty
         for i in 0..(offset) {
-            if self.spaces[i+room_start] != BState::Empty {
+            if self.spaces[i + room_start] != BState::Empty {
                 //println!("walkway not empty: {}", i+p+HALLSIZE);
                 return false;
             }
         }
         // Make sure rest of room is settled
-        for i in offset+1..self.roomsize {
-            if i+room_start > 23 {
-                println!("src:{} tar:{} i:{} p:{} HALLSIZE:{} offset:{} self.roomsize:{}",
-                    src,tar,i,p,HALLSIZE,offset,self.roomsize);
+        for i in offset + 1..self.roomsize {
+            if i + room_start > 23 {
+                println!(
+                    "src:{} tar:{} i:{} p:{} HALLSIZE:{} offset:{} self.roomsize:{}",
+                    src, tar, i, p, HALLSIZE, offset, self.roomsize
+                );
             }
-            if self.spaces[i+room_start] != room_type {
+            if self.spaces[i + room_start] != room_type {
                 //println!("room not settled: {}", i+p+HALLSIZE);
                 return false;
             }
@@ -347,13 +348,12 @@ impl Board {
         }
         let p = src - HALLSIZE;
         let offset = p % self.roomsize;
-        let room_type = 
-            match p / self.roomsize {
-                0 => BState::A,
-                1 => BState::B,
-                2 => BState::C,
-                3 => BState::D,
-                _ => panic!("unknown state")
+        let room_type = match p / self.roomsize {
+            0 => BState::A,
+            1 => BState::B,
+            2 => BState::C,
+            3 => BState::D,
+            _ => panic!("unknown state"),
         };
 
         // Is the piece in the right room?
@@ -361,13 +361,13 @@ impl Board {
             return false;
         }
         //println!("srcpos={} p={} offset={}", srcpos, p, offset);
-  
-        let room_start = (p/self.roomsize) * self.roomsize + HALLSIZE;
+
+        let room_start = (p / self.roomsize) * self.roomsize + HALLSIZE;
 
         // Are the other deeper pieces also in the right room?
-        for i in (offset+1) .. self.roomsize {
+        for i in (offset + 1)..self.roomsize {
             //println!("i={}, target_state={}", i, target_state);
-            if self.spaces[i+room_start] != room_type {
+            if self.spaces[i + room_start] != room_type {
                 //println!("False");
                 return false;
             }
@@ -383,21 +383,20 @@ impl Board {
             }
         }
 
-        for i in 0 .. self.roomsize * NUM_ROOMS {
-            let room_type = 
-                match i / self.roomsize {
-                    0 => BState::A,
-                    1 => BState::B,
-                    2 => BState::C,
-                    3 => BState::D,
-                    _ => panic!("unknown state")
+        for i in 0..self.roomsize * NUM_ROOMS {
+            let room_type = match i / self.roomsize {
+                0 => BState::A,
+                1 => BState::B,
+                2 => BState::C,
+                3 => BState::D,
+                _ => panic!("unknown state"),
             };
-            if self.spaces[HALLSIZE+i] != room_type {
+            if self.spaces[HALLSIZE + i] != room_type {
                 return false;
             }
         }
 
-        println!("{}",self);
+        println!("{}", self);
         true
     }
 }
@@ -483,7 +482,6 @@ pub fn day23_p1() {
     println!("Day 23 Puzzle 1");
 
     if let Ok(lines) = util::read_lines(FILENAME) {
-
         let re_line0 = Regex::new(r"^#############$").unwrap();
         let re_line1 = Regex::new(r"^#\.\.\.\.\.\.\.\.\.\.\.#$").unwrap();
         let re_line2 = Regex::new(r"^###([A-D])#([A-D])#([A-D])#([A-D])###$").unwrap();

@@ -46,7 +46,7 @@ impl BinTreeNode {
     // of 10 or more.  If so, split it, and return true.
 
     // If no nodes are found, return false.
-    
+
     // At most, a single split will happen.
     fn split(n: &mut BinTreeNode) -> bool {
         match n {

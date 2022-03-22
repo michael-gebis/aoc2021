@@ -1,23 +1,23 @@
 use crate::*;
 
 #[allow(dead_code)]
-pub fn calculate_move_costa(v: &std::vec::Vec<usize>, m:usize) -> usize {
+pub fn calculate_move_costa(v: &std::vec::Vec<usize>, m: usize) -> usize {
     let mut cost = 0;
 
     for i in v {
-        cost += if *i < m  { m - *i } else { *i - m }
+        cost += if *i < m { m - *i } else { *i - m }
     }
 
     cost
 }
 
 #[allow(dead_code)]
-pub fn calculate_move_costb(v: &std::vec::Vec<usize>, m:usize) -> usize {
+pub fn calculate_move_costb(v: &std::vec::Vec<usize>, m: usize) -> usize {
     let mut cost = 0;
 
     for i in v {
-        let absdist = if *i < m  { m - *i } else { *i - m }; 
-        cost += (absdist*(absdist+1)) / 2;
+        let absdist = if *i < m { m - *i } else { *i - m };
+        cost += (absdist * (absdist + 1)) / 2;
     }
 
     cost
@@ -35,11 +35,11 @@ pub fn day07_p1() {
                 dbg!(vals.clone());
 
                 let minv = vals[0];
-                let maxv = vals[vals.len()-1];
+                let maxv = vals[vals.len() - 1];
                 let mut mincost = usize::MAX;
                 let mut minm = 0;
-                for i in minv..maxv+1  {
-                    let cost = dbg!(calculate_move_costb(&vals,i));
+                for i in minv..maxv + 1 {
+                    let cost = dbg!(calculate_move_costb(&vals, i));
                     if cost < mincost {
                         mincost = cost;
                         minm = i;
@@ -51,4 +51,3 @@ pub fn day07_p1() {
         }
     }
 }
-

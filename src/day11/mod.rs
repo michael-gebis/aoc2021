@@ -5,7 +5,7 @@ const FILENAME: &str = "src/day11/day11_input.txt";
 //const FILENAME: &str = "src/day11/day11_exampleA.txt";
 
 struct NeighborIter {
-    origin: (i32, i32),    // col,row
+    origin: (i32, i32),        // col,row
     boardsize: (usize, usize), // rows and columns
     count: usize,
 }
@@ -29,7 +29,7 @@ impl Iterator for NeighborIter {
         while self.count < 8 {
             let pos: (i32, i32) = (
                 self.origin.0 as i32 + offsets[self.count].0 as i32,
-                self.origin.1 as i32+ offsets[self.count].1 as i32,
+                self.origin.1 as i32 + offsets[self.count].1 as i32,
             );
             self.count += 1;
 
@@ -55,7 +55,7 @@ fn neighbor_iter(origin: (i32, i32), boardsize: (usize, usize)) -> NeighborIter 
     }
 }
 
-fn print_board(board: &Vec<Vec<i32>>, boardsize: (usize,usize)) {
+fn print_board(board: &Vec<Vec<i32>>, boardsize: (usize, usize)) {
     for row in 0..boardsize.0 {
         for col in 0..boardsize.1 {
             print!("{}", board[row][col]);
@@ -104,20 +104,19 @@ pub fn day11_p1() {
     for step in 0..1000 {
         let mut stepflashes = 0;
         println!("Step {}", step);
-        print_board(&board,boardsize);
+        print_board(&board, boardsize);
 
-        let mut toflash:Vec<(usize,usize)> = Vec::new();
+        let mut toflash: Vec<(usize, usize)> = Vec::new();
         let mut flashed = vec![vec![false; rowsize]; linecount];
 
         println!("  Increasing energy of all squares by one...");
-        for row in 0..linecount as usize{
+        for row in 0..linecount as usize {
             for col in 0..rowsize as usize {
                 board[row][col] += 1;
                 if board[row as usize][col as usize] > 9 {
-                    println!("  adding {},{} to toflash", col,row);
-                    toflash.push((row,col));
+                    println!("  adding {},{} to toflash", col, row);
+                    toflash.push((row, col));
                     //flashes += 1;
-
                 }
             }
         }
@@ -128,14 +127,14 @@ pub fn day11_p1() {
                 continue;
             }
             println!("  flashing {},{}", p.1, p.0);
-            stepflashes+=1;
+            stepflashes += 1;
             board[p.0][p.1] = 0;
             flashed[p.0][p.1] = true;
-            for (col,row) in neighbor_iter((p.1 as i32,p.0 as i32), boardsize) {
+            for (col, row) in neighbor_iter((p.1 as i32, p.0 as i32), boardsize) {
                 if !flashed[row as usize][col as usize] {
                     board[row as usize][col as usize] += 1;
-                    if board[row as usize][col as usize] > 9  {
-                        toflash.push((row as usize,col as usize));
+                    if board[row as usize][col as usize] > 9 {
+                        toflash.push((row as usize, col as usize));
                         //flashes += 1;
                     }
                 }
@@ -146,10 +145,8 @@ pub fn day11_p1() {
         println!("Total flashes:{}", flashes);
         println!("");
         if stepflashes == boardsize.0 as i32 * boardsize.1 as i32 {
-            println!("Everybody flashed! Step = {}", step+1);
+            println!("Everybody flashed! Step = {}", step + 1);
             break;
         }
-
     }
-
 }

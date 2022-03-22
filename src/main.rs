@@ -57,7 +57,7 @@ fn main() {
     //day11::day11_p1();
 
     //day12::day12_p1();
-    
+
     //day13::day13_p1();
 
     //day14::day14_p1();
@@ -76,7 +76,7 @@ fn main() {
     //day19::day19_p1();
 
     //day20::day20_p1();
-    
+
     //day21::day21_p1();
     //day21::day21_p2();
 
@@ -88,4 +88,3 @@ fn main() {
 
     day25::day25_p1();
 }
-
